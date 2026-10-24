@@ -90,7 +90,9 @@ A container or VM with **4 cores and 4 GB RAM** is enough (int8 peaks at ~1.6 GB
 ```bash
 # 1. environment
 sudo useradd -r -d /opt/lt_ausys -s /usr/sbin/nologin ltausys
-sudo mkdir -p /opt/lt_ausys && cd /opt/lt_ausys
+sudo apt install -y python3-venv git          # Debian / Ubuntu
+sudo mkdir -p /opt/lt_ausys && sudo git clone https://github.com/RobertasTa/lt-ausys /opt/lt_ausys/src
+cd /opt/lt_ausys
 sudo python3 -m venv venv && sudo venv/bin/pip install "onnx-asr[cpu,hub]" numpy wyoming
 
 # 2. model (int8 files only — 0.9 GB)
@@ -98,7 +100,7 @@ sudo venv/bin/python3 -c "from huggingface_hub import snapshot_download as s; s(
 sudo ln -sfn model_v0 model
 
 # 3. server
-sudo cp server/lt_ausys_server.py . && sudo cp server/lt-ausys.service /etc/systemd/system/
+sudo cp src/server/lt_ausys_server.py . && sudo cp src/server/lt-ausys.service /etc/systemd/system/
 sudo chown -R ltausys:ltausys /opt/lt_ausys
 sudo systemctl daemon-reload && sudo systemctl enable --now lt-ausys
 journalctl -u lt-ausys -f        # "model ... loaded in 2.1 s", "listening on tcp://0.0.0.0:10302"

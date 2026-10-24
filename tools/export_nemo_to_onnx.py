@@ -59,8 +59,9 @@ def main() -> None:
     import onnx
 
     enc = out / "encoder-model.onnx"
+    graph_only = onnx.load(str(enc), load_external_data=False)  # count before loading: loading embeds them
+    ext = [t for t in graph_only.graph.initializer if t.data_location == onnx.TensorProto.EXTERNAL]
     model = onnx.load(str(enc))
-    ext = [t for t in model.graph.initializer if t.data_location == onnx.TensorProto.EXTERNAL]
     onnx.save(model, str(enc), save_as_external_data=True, all_tensors_to_one_file=True,
               location="encoder-model.onnx.data", size_threshold=1024, convert_attribute=False)
     removed = 0
