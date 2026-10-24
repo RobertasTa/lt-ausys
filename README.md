@@ -42,6 +42,31 @@ audio it is given. Same machine, same 127 home commands:
 
 Full tables, test sets and caveats: [docs/results.md](docs/results.md).
 
+## Starting from zero: a Lithuanian voice assistant at home
+
+**Why bother.** Out of the box Home Assistant offers you Whisper *base* (CPU default) or *small* (GPU default) —
+on Lithuanian read speech they score **88 % and 66 % word error rate** (our measurement for
+[wyoming-faster-whisper PR #122](https://github.com/OHF-Voice/wyoming-faster-whisper/pull/122)): the pipeline looks
+green, the sentences look like sentences, and the house does the wrong thing. The alternative is a cloud service that
+hears everything said in your home. LT_ausys is **10.6 %** on the same test, local, and faster than both.
+
+**What a Lithuanian voice chain needs, in the order to set it up:**
+
+1. **Ears — this project.** A small Linux box (a mini PC, a Proxmox container, a Pi 5 should do — 4 GB RAM) running the
+   server from section B, or your existing `wyoming-faster-whisper` from section D. Five minutes.
+2. **Home Assistant** — add it as a Wyoming integration (section C) and pick it as the speech-to-text of your Assist
+   pipeline, language Lithuanian. Home Assistant's own Lithuanian intents (*„įjunk šviesą svetainėje"*) are already
+   there.
+3. **Mouth** — a Lithuanian voice for Piper: [Reginutė](https://github.com/RobertasTa/reginute) or
+   [Ingutė](https://github.com/RobertasTa/ingute), both in the official Piper voice catalogue; add Piper as a Wyoming
+   text-to-speech integration the same way.
+4. **A microphone in the room** — a Home Assistant Voice PE, any ESPHome satellite, or a USB conference speakerphone
+   via [Speakerphone Assist](https://github.com/RobertasTa/speakerphone-assist). This is what listens for the wake word
+   and sends your sentence to the ears.
+5. Say *„Įjunk šviesą svetainėje"* and watch the light.
+
+Everything above runs in your house; nothing is sent anywhere.
+
 ## Quick start
 
 ### A. Python only

@@ -41,6 +41,30 @@ procesoriaus tai pastovi kelių sekundžių kaina komandai, ir joks suspaudimas 
 
 Pilnos lentelės, rinkiniai ir išlygos: [docs/results.md](docs/results.md).
 
+## Nuo nulio: lietuviškas balso asistentas namuose
+
+**Kam to reikia.** Iš dėžutės Home Assistant siūlo Whisper *base* (numatytas procesoriui) arba *small* (numatytas
+vaizdo plokštei) — lietuviškoje skaitomoje kalboje jie daro **88 % ir 66 % žodžių klaidų** (mūsų matavimas
+[wyoming-faster-whisper PR #122](https://github.com/OHF-Voice/wyoming-faster-whisper/pull/122)): grandinė žalia,
+sakiniai atrodo kaip sakiniai, o namai daro ne tą. Kita išeitis — debesies paslauga, kuri girdi viską, kas pasakoma
+namuose. LT_ausys tame pačiame teste — **10,6 %**, lokaliai ir greičiau už abu.
+
+**Ko reikia lietuviškai balso grandinei, diegimo eilės tvarka:**
+
+1. **Ausys — šis projektas.** Mažas Linux (mini PC, Proxmox konteineris, turėtų tikti ir Pi 5 — 4 GB RAM) su serveriu
+   iš B skyriaus arba tavo esamas `wyoming-faster-whisper` iš D skyriaus. Penkios minutės.
+2. **Home Assistant** — pridėk kaip Wyoming integraciją (C skyrius) ir pasirink Assist pipeline'o kalbos atpažinimu,
+   kalba lietuvių. Paties Home Assistant lietuviškos komandos (*„įjunk šviesą svetainėje"*) jau yra.
+3. **Burna** — lietuviškas balsas Piper'iui: [Reginutė](https://github.com/RobertasTa/reginute) arba
+   [Ingutė](https://github.com/RobertasTa/ingute), abi oficialiame Piper balsų kataloge; Piper pridedamas kaip Wyoming
+   teksto į kalbą integracija lygiai taip pat.
+4. **Mikrofonas kambaryje** — Home Assistant Voice PE, bet koks ESPHome palydovas arba USB konferencinė kolonėlė per
+   [Speakerphone Assist](https://github.com/RobertasTa/speakerphone-assist). Tai, kas klauso žadinimo žodžio ir siunčia
+   tavo sakinį ausims.
+5. Pasakyk *„Įjunk šviesą svetainėje"* ir žiūrėk į lempą.
+
+Viskas, kas aukščiau, sukasi tavo namuose; niekur nieko nesiunčiama.
+
 ## Greita pradžia
 
 ### A. Tik Python
