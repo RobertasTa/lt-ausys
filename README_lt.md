@@ -57,9 +57,12 @@ namuose. LT_ausys tame pačiame teste — **10,6 %**, lokaliai ir greičiau už 
    iš B skyriaus arba tavo esamas `wyoming-faster-whisper` iš D skyriaus. Penkios minutės.
 2. **Home Assistant** — pridėk kaip Wyoming integraciją (C skyrius) ir pasirink Assist pipeline'o kalbos atpažinimu,
    kalba lietuvių. Paties Home Assistant lietuviškos komandos (*„įjunk šviesą svetainėje"*) jau yra.
-3. **Burna** — lietuviškas balsas Piper'iui: [Reginutė](https://github.com/RobertasTa/reginute) arba
-   [Ingutė](https://github.com/RobertasTa/ingute), abi oficialiame Piper balsų kataloge; Piper pridedamas kaip Wyoming
-   teksto į kalbą integracija lygiai taip pat.
+3. **Burna** — lietuviškas Piper balsas: [Reginutė](https://github.com/RobertasTa/reginute) arba
+   [Ingutė](https://github.com/RobertasTa/ingute). **Šiandien:** leisk jį per mažą Wyoming serverį iš balso
+   repozitorijos (skyrius apie Home Assistant, penkios minutės) ir pridėk kaip Wyoming teksto į kalbą integraciją
+   lygiai taip pat. Abu balsai jau yra oficialiame Piper kataloge, bet katalogo įrašams reikia Piper 1.9.0, kuris dar
+   neišleistas. **Kai išeis Piper 1.9.0**, tikimės, kad veiks tiesiai iš Home Assistant Piper priedo — dar
+   nepatikrinta; patvirtinsim čia.
 4. **Mikrofonas kambaryje** — Home Assistant Voice PE, bet koks ESPHome palydovas arba USB konferencinė kolonėlė per
    [Speakerphone Assist](https://github.com/RobertasTa/speakerphone-assist). Tai, kas klauso žadinimo žodžio ir siunčia
    tavo sakinį ausims.
@@ -110,8 +113,29 @@ Patikrinimas iš bet kurios mašinos, kurioje įdiegtas `wyoming` paketas:
 python tools/wyoming_client_test.py --host <serverio-ip> --port 10302 komanda.wav
 ```
 
+Bandymo klientas priima 16 kHz mono 16 bitų WAV — įrašyk `arecord -f S16_LE -r 16000 -c 1 -d 4 komanda.wav`
+arba pasiversk `ffmpeg -i bet_kas.wav -ar 16000 -ac 1 -sample_fmt s16 komanda.wav`; su float WAV jis sustoja
+klaida `unknown format: 3`.
+
 fp32 modeliui — `allow_patterns=['*.json','vocab.txt','encoder-model.onnx','encoder-model.onnx.data','decoder_joint-model.onnx']`
 ir `--quant fp32` unit'e. Trumpoms komandoms `--threads 2` šiek tiek greičiau nei 4.
+
+**Arba Docker** (išbandyta 2026-10-24 švariame Ubuntu 24.04 konteineryje: vaizdas 2,25 GB, 1,4 GiB RAM po 9,5 s
+sakinio, kuris grįžo pažodžiui per 0,61 s):
+
+```dockerfile
+FROM python:3.12-slim
+RUN pip install --no-cache-dir "onnx-asr[cpu,hub]" numpy wyoming \
+ && python -c "from huggingface_hub import snapshot_download as s; s('RobertasTa/lt-ausys', local_dir='/model', allow_patterns=['*.json','vocab.txt','*.int8.onnx'])"
+ADD https://raw.githubusercontent.com/RobertasTa/lt-ausys/main/server/lt_ausys_server.py /app/lt_ausys_server.py
+EXPOSE 10302
+CMD ["python", "/app/lt_ausys_server.py", "--model", "/model", "--uri", "tcp://0.0.0.0:10302", "--threads", "4"]
+```
+
+```bash
+docker build -t lt-ausys .
+docker run -d --name lt-ausys --restart unless-stopped -p 10302:10302 lt-ausys
+```
 
 ### C. Home Assistant
 

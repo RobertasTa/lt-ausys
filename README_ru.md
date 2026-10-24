@@ -57,9 +57,12 @@ dvidešimt procentų."*).
    раздела B или ваш существующий `wyoming-faster-whisper` из раздела D. Пять минут.
 2. **Home Assistant** — добавьте как интеграцию Wyoming (раздел C) и выберите распознаванием речи в конвейере Assist,
    язык литовский. Собственные литовские команды Home Assistant (*„įjunk šviesą svetainėje"*) уже есть.
-3. **Рот** — литовский голос для Piper: [Reginutė](https://github.com/RobertasTa/reginute) или
-   [Ingutė](https://github.com/RobertasTa/ingute), обе в официальном каталоге голосов Piper; Piper добавляется как
-   интеграция Wyoming для синтеза речи точно так же.
+3. **Рот** — литовский голос Piper: [Reginutė](https://github.com/RobertasTa/reginute) или
+   [Ingutė](https://github.com/RobertasTa/ingute). **Сегодня:** запускайте его через маленький Wyoming-сервер из
+   репозитория голоса (раздел про Home Assistant, пять минут) и добавьте как интеграцию Wyoming для синтеза речи
+   точно так же. Оба голоса уже есть в официальном каталоге Piper, но записям каталога нужен Piper 1.9.0, который ещё
+   не вышел. **Когда выйдет Piper 1.9.0**, мы ожидаем, что они заработают прямо из дополнения Piper в Home Assistant —
+   это ещё не проверено; подтвердим здесь.
 4. **Микрофон в комнате** — Home Assistant Voice PE, любой спутник ESPHome или USB-конференц-спикерфон через
    [Speakerphone Assist](https://github.com/RobertasTa/speakerphone-assist). Это то, что слушает слово-активатор и
    отправляет вашу фразу ушам.
@@ -110,8 +113,29 @@ journalctl -u lt-ausys -f        # «model ... loaded in 2.1 s», «listening on
 python tools/wyoming_client_test.py --host <ip-сервера> --port 10302 komanda.wav
 ```
 
+Тестовый клиент принимает WAV 16 кГц, моно, 16 бит — запишите `arecord -f S16_LE -r 16000 -c 1 -d 4 komanda.wav`
+или преобразуйте `ffmpeg -i любой.wav -ar 16000 -ac 1 -sample_fmt s16 komanda.wav`; на WAV во float он
+останавливается с ошибкой `unknown format: 3`.
+
 Для модели fp32 — `allow_patterns=['*.json','vocab.txt','encoder-model.onnx','encoder-model.onnx.data','decoder_joint-model.onnx']`
 и `--quant fp32` в unit-файле. Для коротких команд `--threads 2` чуть быстрее, чем 4.
+
+**Или Docker** (проверено 2026-10-24 на чистом контейнере Ubuntu 24.04: образ 2,25 ГБ, 1,4 ГиБ RAM после фразы
+9,5 с, которая вернулась слово в слово за 0,61 с):
+
+```dockerfile
+FROM python:3.12-slim
+RUN pip install --no-cache-dir "onnx-asr[cpu,hub]" numpy wyoming \
+ && python -c "from huggingface_hub import snapshot_download as s; s('RobertasTa/lt-ausys', local_dir='/model', allow_patterns=['*.json','vocab.txt','*.int8.onnx'])"
+ADD https://raw.githubusercontent.com/RobertasTa/lt-ausys/main/server/lt_ausys_server.py /app/lt_ausys_server.py
+EXPOSE 10302
+CMD ["python", "/app/lt_ausys_server.py", "--model", "/model", "--uri", "tcp://0.0.0.0:10302", "--threads", "4"]
+```
+
+```bash
+docker build -t lt-ausys .
+docker run -d --name lt-ausys --restart unless-stopped -p 10302:10302 lt-ausys
+```
 
 ### C. Home Assistant
 

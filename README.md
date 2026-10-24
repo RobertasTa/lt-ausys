@@ -59,9 +59,12 @@ hears everything said in your home. LT_ausys is **10.6 %** on the same test, loc
 2. **Home Assistant** — add it as a Wyoming integration (section C) and pick it as the speech-to-text of your Assist
    pipeline, language Lithuanian. Home Assistant's own Lithuanian intents (*„įjunk šviesą svetainėje"*) are already
    there.
-3. **Mouth** — a Lithuanian voice for Piper: [Reginutė](https://github.com/RobertasTa/reginute) or
-   [Ingutė](https://github.com/RobertasTa/ingute), both in the official Piper voice catalogue; add Piper as a Wyoming
-   text-to-speech integration the same way.
+3. **Mouth** — a Lithuanian Piper voice: [Reginutė](https://github.com/RobertasTa/reginute) or
+   [Ingutė](https://github.com/RobertasTa/ingute). **Today:** run it with the small Wyoming server from the voice's
+   repository (its Home Assistant install section, five minutes) and add it as a Wyoming text-to-speech integration
+   the same way. Both voices are in the official Piper catalogue already, but the catalogue entries need Piper 1.9.0,
+   which is not released yet. **Once Piper 1.9.0 is out** we expect them to work straight from the Home Assistant
+   Piper add-on — not checked yet; we will confirm it here.
 4. **A microphone in the room** — a Home Assistant Voice PE, any ESPHome satellite, or a USB conference speakerphone
    via [Speakerphone Assist](https://github.com/RobertasTa/speakerphone-assist). This is what listens for the wake word
    and sends your sentence to the ears.
@@ -112,8 +115,29 @@ Test it from any machine with the `wyoming` package installed:
 python tools/wyoming_client_test.py --host <server-ip> --port 10302 komanda.wav
 ```
 
+The test client takes a 16 kHz mono 16-bit WAV — record one with `arecord -f S16_LE -r 16000 -c 1 -d 4 komanda.wav`
+or convert with `ffmpeg -i any.wav -ar 16000 -ac 1 -sample_fmt s16 komanda.wav`; a float WAV stops it with
+`unknown format: 3`.
+
 For the fp32 model use `allow_patterns=['*.json','vocab.txt','encoder-model.onnx','encoder-model.onnx.data','decoder_joint-model.onnx']`
 and `--quant fp32` in the unit. `--threads 2` is slightly faster than 4 for short commands.
+
+**Docker instead** (tested 2026-10-24 on a clean Ubuntu 24.04 container: image 2.25 GB, 1.4 GiB RAM after a 9.5 s
+sentence, which came back word for word in 0.61 s):
+
+```dockerfile
+FROM python:3.12-slim
+RUN pip install --no-cache-dir "onnx-asr[cpu,hub]" numpy wyoming \
+ && python -c "from huggingface_hub import snapshot_download as s; s('RobertasTa/lt-ausys', local_dir='/model', allow_patterns=['*.json','vocab.txt','*.int8.onnx'])"
+ADD https://raw.githubusercontent.com/RobertasTa/lt-ausys/main/server/lt_ausys_server.py /app/lt_ausys_server.py
+EXPOSE 10302
+CMD ["python", "/app/lt_ausys_server.py", "--model", "/model", "--uri", "tcp://0.0.0.0:10302", "--threads", "4"]
+```
+
+```bash
+docker build -t lt-ausys .
+docker run -d --name lt-ausys --restart unless-stopped -p 10302:10302 lt-ausys
+```
 
 ### C. Home Assistant
 
