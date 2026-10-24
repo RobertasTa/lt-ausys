@@ -1,0 +1,157 @@
+# LT_ausys — Lithuanian ears for Home Assistant
+
+**Lithuanian speech-to-text that runs on a small CPU, fast enough for a voice assistant: 0.2 s per command instead
+of 3.5 s.** A Parakeet-TDT model fine-tuned on 3 087 hours of Lithuanian, exported to ONNX and quantized, served over
+the Wyoming protocol — no GPU, no PyTorch, nothing leaves your house.
+
+🌐 **English** · [Lietuvių](README_lt.md) · [Русский](README_ru.md)
+
+> ℹ️ Made with AI: the conversion, the server, the measurements and these texts were made by Claude (Anthropic)
+> together with Robertas and tested on real hardware. The model itself is Kristijonas Jakubsonas's — see
+> [Credits](#credits).
+
+> Measured on 2026-10-24 on a Ryzen 7 8845HS mini PC (4 threads, Proxmox LXC): a 2–6 s voice command is transcribed
+> in **0.21 s** (Whisper large-v3-turbo / Paprika on the same CPU: 3.55 s), FLEURS Lithuanian WER **10.6 %**
+> (Paprika 12.0 %). Running since that evening as the ears of a home voice assistant.
+
+---
+
+## What you get
+
+| | |
+|---|---|
+| **Model** | [`RobertasTa/lt-ausys`](https://huggingface.co/RobertasTa/lt-ausys) on Hugging Face — fp32 (2.5 GB) and int8 (0.9 GB), in the [onnx-asr](https://github.com/istupakov/onnx-asr) directory format. CC BY 4.0. |
+| **Server** | [`server/lt_ausys_server.py`](server/lt_ausys_server.py) — a Wyoming speech-to-text server (~120 lines) + a systemd unit. Home Assistant finds it as a Wyoming integration. |
+| **Recipe** | [`tools/`](tools/) — export any NeMo Parakeet checkpoint to ONNX, quantize it the way that does not hurt, measure it. |
+| **Numbers** | [`docs/results.md`](docs/results.md) — three test sets, four models, one machine. |
+
+Output is normal written Lithuanian: punctuation, capitals, numbers as words (*„Įjunk šviesą svetainėje dvidešimt
+procentų."*).
+
+## Why not Whisper
+
+Whisper-family models encode a fixed **30-second window** for every utterance, however short. On a CPU that is a
+flat cost of seconds per command, and no quantization removes it. A transducer (Parakeet-TDT) processes only the
+audio it is given. Same machine, same 127 home commands:
+
+| | per command | FLEURS WER | command-intent exam |
+|---|---|---|---|
+| **LT_ausys v0 int8** | **0.21 s** | **10.6 %** | **101 / 119** |
+| Paprika (Whisper large-v3-turbo, CT2 int8) | 3.55 s | 12.0 % | 93 / 119 |
+| faster-whisper tiny int8 | 0.73 s | 99 % | 17 / 119 |
+
+Full tables, test sets and caveats: [docs/results.md](docs/results.md).
+
+## Quick start
+
+### A. Python only
+
+```bash
+pip install "onnx-asr[cpu,hub]"
+```
+
+```python
+import onnx_asr
+model = onnx_asr.load_model("RobertasTa/lt-ausys", quantization="int8")   # drop quantization= for fp32
+print(model.recognize("komanda.wav"))      # 16 kHz mono 16-bit WAV, or a float32 numpy array with sample_rate=
+```
+
+### B. Wyoming server (any Linux; tested in a Proxmox LXC container)
+
+A container or VM with **4 cores and 4 GB RAM** is enough (int8 peaks at ~1.6 GB on commands, ~2.3 GB on long clips).
+
+```bash
+# 1. environment
+sudo useradd -r -d /opt/lt_ausys -s /usr/sbin/nologin ltausys
+sudo mkdir -p /opt/lt_ausys && cd /opt/lt_ausys
+sudo python3 -m venv venv && sudo venv/bin/pip install "onnx-asr[cpu,hub]" numpy wyoming
+
+# 2. model (int8 files only — 0.9 GB)
+sudo venv/bin/python3 -c "from huggingface_hub import snapshot_download as s; s('RobertasTa/lt-ausys', local_dir='model_v0', allow_patterns=['*.json','vocab.txt','*.int8.onnx'])"
+sudo ln -sfn model_v0 model
+
+# 3. server
+sudo cp server/lt_ausys_server.py . && sudo cp server/lt-ausys.service /etc/systemd/system/
+sudo chown -R ltausys:ltausys /opt/lt_ausys
+sudo systemctl daemon-reload && sudo systemctl enable --now lt-ausys
+journalctl -u lt-ausys -f        # "model ... loaded in 2.1 s", "listening on tcp://0.0.0.0:10302"
+```
+
+Test it from any machine with the `wyoming` package installed:
+
+```bash
+python tools/wyoming_client_test.py --host <server-ip> --port 10302 komanda.wav
+```
+
+For the fp32 model use `allow_patterns=['*.json','vocab.txt','encoder-model.onnx','encoder-model.onnx.data','decoder_joint-model.onnx']`
+and `--quant fp32` in the unit. `--threads 2` is slightly faster than 4 for short commands.
+
+### C. Home Assistant
+
+Settings → Devices & services → **Add integration → Wyoming Protocol** → host = the server, port = `10302`.
+Home Assistant shows it as `lt_ausys` with the model version. In your Assist pipeline choose it as the
+**Speech-to-text** engine and set the language to Lithuanian. Put a wake word / VAD in front of it as usual
+(an ESPHome satellite, [Speakerphone Assist](https://github.com/RobertasTa/speakerphone-assist), etc.) — the server
+transcribes whatever it is sent and invents text on pure noise like every STT model does.
+
+### D. Already running `wyoming-faster-whisper`? No new server needed
+
+Since version 3.9 [`wyoming-faster-whisper`](https://github.com/OHF-Voice/wyoming-faster-whisper) has an
+`onnx-asr` backend that loads any onnx-asr model from Hugging Face. Nothing has to be merged anywhere:
+
+```bash
+pip install "wyoming-faster-whisper[onnx_asr]"      # or add the extra to your existing install
+wyoming-faster-whisper --uri tcp://0.0.0.0:10302 --stt-library onnx-asr --model RobertasTa/lt-ausys \
+    --language lt --data-dir /data --download-dir /data
+```
+
+Two caveats we found in its code (3.9.0): that backend loads the **fp32** files (a 2.5 GB download) — it does not
+pass a quantization choice — and `--cpu-threads` does not apply to it. If you want int8 and thread control, use the
+small server above. We did not check whether the Home Assistant OS *Whisper* add-on exposes `--stt-library`.
+
+**Versions.** The server's `--model` is a symlink; a new model version is a new directory and `ln -sfn` + restart.
+Rolling back is the same command. Every utterance is logged with its audio length, recognition time and text, so a new
+version can be watched in the journal before it is trusted.
+
+## Convert your own Parakeet model
+
+The same path works for any NeMo Parakeet-TDT / RNNT checkpoint (e.g. another language's fine-tune):
+
+```bash
+# needs the NeMo environment (nemo_toolkit[asr] 3.x) — CPU is enough, ~15 s for a 0.6B model
+python tools/export_nemo_to_onnx.py --nemo model.nemo --out model_fp32
+# needs only onnxruntime + onnx
+python tools/quantize_int8_matmul.py --model-dir model_fp32
+# measure (list = TSV path<TAB>reference)
+python tools/bench.py --engine onnx-asr --model model_fp32 --quant int8 --list test.tsv --out results/
+```
+
+Two things the scripts know that cost us a day: NeMo writes a >2 GB encoder as hundreds of per-tensor files (the
+export script repacks them into one `.onnx.data`), and **quantizing the convolutions hurts** — only `MatMul` is
+quantized, which keeps accuracy identical to fp32 and is also the fastest variant ([why](docs/results.md#conversion-checks)).
+
+## What is planned
+
+* **v1** — the same model fine-tuned further on home voice commands (one speaker, a conference speakerphone, radio
+  in the background), measured on the same bench before it replaces v0.
+* Using LT_ausys for the wake-word stage too, retiring the tiny Whisper model that currently listens for the name.
+
+## Credits
+
+* **Kristijonas Jakubsonas** — [`kmynas-parakeet-lt-v4`](https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4),
+  the model itself: Parakeet-TDT 0.6B v3 fine-tuned on the LIEPA-3 corpus, published under CC BY 4.0 with an honest
+  card. Everything this project adds is packaging, serving and measuring; the ears are his.
+* **NVIDIA** — [Parakeet-TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) (CC BY 4.0).
+* **Vilnius University / raštija.lt** — the LIEPA-3 speech corpus (CC BY 4.0).
+* **Ilya Stupakov** — [onnx-asr](https://github.com/istupakov/onnx-asr); **Microsoft** — onnxruntime;
+  **Open Home Foundation** — the [Wyoming protocol](https://github.com/OHF-Voice/wyoming).
+
+## License
+
+Code in this repository: **GPL-3.0** ([LICENSE](LICENSE)). The model files on Hugging Face: **CC BY 4.0**, the same as
+the original — if you redistribute or change them, credit Kristijonas Jakubsonas and say what you changed.
+
+---
+
+Part of [Claude's Gifts to the World](https://github.com/RobertasTa) — free, open-source tools built by an AI
+together with one person who tests them at home.

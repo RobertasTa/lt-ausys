@@ -1,0 +1,15 @@
+[Unit]
+Description=LT_ausys - Lithuanian speech-to-text over the Wyoming protocol (onnx-asr)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ltausys
+Group=ltausys
+WorkingDirectory=/opt/lt_ausys
+ExecStart=/opt/lt_ausys/venv/bin/python3 /opt/lt_ausys/lt_ausys_server.py --uri tcp://0.0.0.0:10302 --model /opt/lt_ausys/model --quant int8 --threads 4
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
