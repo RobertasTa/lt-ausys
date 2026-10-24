@@ -1,5 +1,7 @@
 # LT_ausys — lietuviškos ausys Home Assistant'ui
 
+![LT_ausys — robotinė ranka laiko dovanų dėžutę su užrašu lt-ausys po švytinčiu gaubliu; kampe LIEPA-3 garsyno įstaigų ženklai (iliustracija sukurta naudojant DI)](docs/banner.png)
+
 **Lietuviškas kalbos atpažinimas, kuris sukasi ant mažo procesoriaus pakankamai greitai balso asistentui: 0,2 s
 komandai vietoj 3,5 s.** Parakeet-TDT modelis, apmokytas 3 087 valandomis lietuviškos kalbos, perkeltas į ONNX ir
 suspaustas, paduodamas per Wyoming protokolą — be vaizdo plokštės, be PyTorch, niekas neišeina iš namų.

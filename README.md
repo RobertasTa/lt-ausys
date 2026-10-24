@@ -1,5 +1,7 @@
 # LT_ausys — Lithuanian ears for Home Assistant
 
+![LT_ausys — a robotic hand holds a gift box labelled lt-ausys under a glowing globe; logos of the LIEPA-3 corpus institutions in the corner (illustration created with AI)](docs/banner.png)
+
 **Lithuanian speech-to-text that runs on a small CPU, fast enough for a voice assistant: 0.2 s per command instead
 of 3.5 s.** A Parakeet-TDT model fine-tuned on 3 087 hours of Lithuanian, exported to ONNX and quantized, served over
 the Wyoming protocol — no GPU, no PyTorch, nothing leaves your house.
