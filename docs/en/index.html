@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-site-verification" content="ngCuEME8a9C8od6O7mw1EHMId6BzZqJE9-xi-NIyy-Y" />
+<title>Lithuanian Speech to Text for Home Assistant — LT_ausys</title>
+<meta name="description" content="Free, offline Lithuanian speech recognition (ASR) for Home Assistant and Wyoming: a voice command in 0.2 s on a plain CPU, no GPU, no cloud. Parakeet-TDT in ONNX/int8.">
+<link rel="canonical" href="https://robertasta.github.io/lt-ausys/en/">
+<meta property="og:title" content="LT_ausys — Lithuanian speech to text for Home Assistant">
+<meta property="og:description" content="Lithuanian ears for a voice assistant: 0.2 s per command on a CPU, no cloud. Kristijonas Jakubsonas's kmynas model in ONNX/int8 with a Wyoming server.">
+<meta property="og:image" content="https://robertasta.github.io/lt-ausys/banner.png">
+<meta property="og:url" content="https://robertasta.github.io/lt-ausys/en/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<link rel="alternate" hreflang="lt" href="https://robertasta.github.io/lt-ausys/">
+<link rel="alternate" hreflang="en" href="https://robertasta.github.io/lt-ausys/en/">
+<link rel="alternate" hreflang="x-default" href="https://robertasta.github.io/lt-ausys/en/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "LT_ausys",
+  "alternateName": "lt-ausys",
+  "description": "Lithuanian speech-to-text for Home Assistant and the Wyoming protocol: the kmynas v4 Parakeet-TDT model in ONNX/int8, running offline on a CPU.",
+  "url": "https://robertasta.github.io/lt-ausys/en/",
+  "codeRepository": "https://github.com/RobertasTa/lt-ausys",
+  "programmingLanguage": "Python",
+  "runtimePlatform": "Linux, onnxruntime",
+  "inLanguage": "en",
+  "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+  "keywords": "Lithuanian speech to text, Lithuanian speech recognition, Lithuanian ASR, Home Assistant Lithuanian, Wyoming STT, Parakeet, ONNX, offline, CPU",
+  "author": [
+    {"@type": "Person", "name": "Robertas Tarasevičius"},
+    {"@type": "Organization", "name": "Claude (Anthropic)"}
+  ],
+  "isBasedOn": {
+    "@type": "CreativeWork",
+    "name": "kmynas-parakeet-lt-v4",
+    "url": "https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4",
+    "author": {"@type": "Person", "name": "Kristijonas Jakubsonas"},
+    "license": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "sameAs": [
+    "https://github.com/RobertasTa/lt-ausys",
+    "https://huggingface.co/RobertasTa/lt-ausys"
+  ]
+}
+</script>
+<style>
+  :root{
+    --bg:#010d24; --bg2:#06173a; --card:#0b1f47;
+    --text:#f5f7fc; --muted:#bcc4d6; --amber:#e8b84b; --line:#1d3560;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.6}
+  a{color:var(--amber)}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  header{padding:48px 0 36px;text-align:center}
+  header img.baneris{width:100%;height:auto;max-width:820px;border-radius:10px;border:1px solid var(--line);margin-bottom:26px}
+  h1{font-size:2.4rem;font-weight:700;letter-spacing:.5px}
+  .tagline{font-size:1.25rem;color:var(--muted);margin-top:10px}
+  .amber{color:var(--amber);font-style:italic;margin-top:8px}
+  .actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:30px 0 8px}
+  .btn{display:inline-block;padding:12px 26px;border-radius:8px;font-weight:600;text-decoration:none}
+  .btn-amber{background:var(--amber);color:#1a1200}
+  .btn-ghost{border:1px solid var(--line);color:var(--text)}
+  section{padding:36px 0;border-top:1px solid var(--line)}
+  section p+p{margin-top:12px}
+  h2{font-size:1.4rem;margin-bottom:18px}
+  h3{font-size:1.08rem;margin:22px 0 8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+  .card h3{font-size:1.02rem;margin:0 0 6px}
+  .card p{color:var(--muted);font-size:.95rem}
+  .lentele{overflow-x:auto;margin-top:6px}
+  table{border-collapse:collapse;width:100%;font-size:.95rem}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left}
+  th{background:var(--bg2)}
+  td.sk{text-align:right;white-space:nowrap}
+  tr.mes td{color:var(--amber);font-weight:600}
+  .pastaba{color:var(--muted);font-size:.92rem;margin-top:10px}
+  ol.grandine{margin:6px 0 0 22px}
+  ol.grandine li+li{margin-top:8px}
+  .autorius{background:var(--bg2);border:1px solid var(--amber);border-radius:12px;padding:24px}
+  .autorius p{color:var(--muted)}
+  .autorius p b{color:var(--text)}
+  .ask{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:24px}
+  .ask p{color:var(--muted)}
+  .ask code{overflow-wrap:anywhere}
+  pre{background:#00081a;border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.9rem;margin-top:8px}
+  code{font-family:Consolas,"Courier New",monospace}
+  ul.isl{margin:0 0 0 22px;color:var(--muted)}
+  ul.isl li+li{margin-top:8px}
+  dl.duk dt{font-weight:600;margin-top:16px}
+  dl.duk dd{color:var(--muted);margin-top:4px}
+  .padekos p{color:var(--muted);font-size:.95rem}
+  footer{padding:36px 0 48px;text-align:center;color:var(--muted);font-size:.92rem;border-top:1px solid var(--line)}
+  footer .sig{color:var(--amber);font-style:italic;margin-top:6px}
+  footer .di{font-size:.85rem;margin-top:10px}
+  .kalba{display:flex;justify-content:flex-end;gap:8px;padding-top:16px;font-size:.92rem;color:var(--muted)}
+  .kalba b{color:var(--amber)}
+</style>
+</head>
+<body>
+
+<nav class="kalba wrap" aria-label="Language / Kalba"><a href="../" hreflang="lt" lang="lt">LT</a> · <b>EN</b></nav>
+
+<header class="wrap">
+  <img class="baneris" src="../banner.png" width="1774" height="887" alt="LT_ausys — Lithuanian speech recognition: a robotic hand holding a gift box under a glowing globe (illustration made with AI)">
+  <h1>LT_ausys — Lithuanian ears</h1>
+  <p class="tagline">Lithuanian speech to text for Home Assistant: a voice command in 0.2 s on an ordinary CPU.</p>
+  <p class="amber">Lithuanian. Local. Free.</p>
+  <div class="actions">
+    <a class="btn btn-amber" href="https://huggingface.co/RobertasTa/lt-ausys">Model on Hugging Face</a>
+    <a class="btn btn-ghost" href="https://github.com/RobertasTa/lt-ausys">Code on GitHub</a>
+    <a class="btn btn-ghost" href="https://github.com/RobertasTa/lt-ausys#b-wyoming-server-any-linux-tested-in-a-proxmox-lxc-container">Wyoming server</a>
+  </div>
+</header>
+
+<section class="wrap">
+  <h2>Offline Lithuanian speech recognition, at home</h2>
+  <p>A voice assistant needs a mouth and ears. The ears are speech-to-text (STT, also called ASR): they hear
+  <i>“Įjunk šviesą svetainėje”</i> (“turn on the living-room light”) and turn it into text Home Assistant can act on.
+  LT_ausys is <b>Kristijonas Jakubsonas</b>'s Lithuanian model, which we converted to ONNX and compressed so it runs
+  fast on a CPU with no GPU, served over the Wyoming protocol — the same one Home Assistant uses for its own voice
+  services.</p>
+  <div class="grid" style="margin-top:22px">
+    <div class="card"><h3>Fast</h3><p>A voice command is recognised in 0.21 s. Whisper-family models (Paprika included) take 3.55 s on the same mini PC: they encode a 30-second window for every phrase, however short.</p></div>
+    <div class="card"><h3>No GPU</h3><p>Four CPU cores and 4 GB of RAM are enough — a mini PC or a Proxmox container. The compressed (int8) model is 0.9 GB.</p></div>
+    <div class="card"><h3>More accurate</h3><p>On read speech (FLEURS) it gets 10.6 % of words wrong; Paprika 12.0 %. Home Assistant's default Whisper <i>base</i> gets 88 % wrong in Lithuanian.</p></div>
+    <div class="card"><h3>No cloud</h3><p>Everything runs on your own computer or home server. No account, no API key, no subscription. What is said at home stays at home.</p></div>
+    <div class="card"><h3>Writes like a person</h3><p>The output is normal written Lithuanian: punctuation, capital letters and numbers spelled out as words.</p></div>
+    <div class="card"><h3>Free to use</h3><p>The model is CC BY 4.0, like the original: commercial use is allowed with credit to Kristijonas Jakubsonas. The server and tools are GPL-3.0.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Why not Whisper</h2>
+  <p>Whisper is the most popular open speech-recognition model, but it encodes a fixed 30-second window for every
+  phrase, however short. On a CPU that is a cost of several seconds per command. LT_ausys is built on NVIDIA's
+  Parakeet-TDT transducer, which processes only as much audio as it is given. Same machine (Ryzen 7 8845HS mini PC,
+  4 threads), same 127 home commands:</p>
+  <div class="lentele">
+  <table>
+    <tr><th></th><th>per command</th><th>FLEURS word error rate</th><th>command intent exam</th></tr>
+    <tr class="mes"><td>LT_ausys (int8)</td><td class="sk">0.21 s</td><td class="sk">10.6 %</td><td class="sk">101 / 119</td></tr>
+    <tr><td>Paprika (Whisper large-v3-turbo)</td><td class="sk">3.55 s</td><td class="sk">12.0 %</td><td class="sk">93 / 119</td></tr>
+    <tr><td>faster-whisper tiny</td><td class="sk">0.73 s</td><td class="sk">99 %</td><td class="sk">17 / 119</td></tr>
+  </table>
+  </div>
+  <p class="pastaba">Measured on 2026-10-24 on one machine. Full tables, test sets and caveats:
+  <a href="https://github.com/RobertasTa/lt-ausys/blob/main/docs/results.md">docs/results.md</a>.</p>
+</section>
+
+<section class="wrap">
+  <h2>Getting started: Home Assistant in Lithuanian</h2>
+  <p>Three ways in — pick the one closest to what you already run.</p>
+
+  <h3>A. Python only</h3>
+  <pre><code>pip install "onnx-asr[cpu,hub]"</code></pre>
+  <pre><code>import onnx_asr
+model = onnx_asr.load_model("RobertasTa/lt-ausys", quantization="int8")
+print(model.recognize("command.wav"))   # 16 kHz mono WAV</code></pre>
+
+  <h3>B. A small Wyoming STT server of its own (Linux or Docker)</h3>
+  <p>About 5 minutes: a Python environment with a systemd unit, or a single Docker image. The full recipe is
+  <a href="https://github.com/RobertasTa/lt-ausys#b-wyoming-server-any-linux-tested-in-a-proxmox-lxc-container">in the README</a>.
+  The server listens on port <code>10302</code>.</p>
+
+  <h3>C. Already running <code>wyoming-faster-whisper</code>?</h3>
+  <p>Since version 3.9 it has an <code>onnx-asr</code> engine, so no new server is needed:</p>
+  <pre><code>wyoming-faster-whisper --uri tcp://0.0.0.0:10302 --stt-library onnx-asr \
+    --model RobertasTa/lt-ausys --language lt --data-dir /data --download-dir /data</code></pre>
+  <p class="pastaba">This route loads the larger fp32 model (2.5 GB) and ignores the thread count; for int8 use
+  route B. <a href="https://github.com/RobertasTa/lt-ausys#d-already-running-wyoming-faster-whisper-no-new-server-needed">Why</a>.</p>
+
+  <h3>Then Home Assistant</h3>
+  <p>Settings → Devices &amp; services → <b>Add integration → Wyoming Protocol</b> → the server's address and port
+  <code>10302</code>. In your Assist pipeline choose <code>lt_ausys</code> as the <i>Speech-to-text</i> engine and
+  Lithuanian as the language.</p>
+</section>
+
+<section class="wrap">
+  <h2>The whole Lithuanian voice pipeline</h2>
+  <p>For Home Assistant to understand and answer in Lithuanian you need three parts. All are free and run at home:</p>
+  <ol class="grandine">
+    <li><b>Ears</b> — this project: Lithuanian speech recognition.</li>
+    <li><b>Mouth</b> — a Lithuanian Piper voice, <a href="https://robertasta.github.io/reginute/en/">Reginutė</a>
+    or <a href="https://robertasta.github.io/ingute/en/">Ingutė</a>: spoken answers with correct stress.</li>
+    <li><b>A microphone in the room</b> — Home Assistant Voice PE, an ESPHome satellite, or a USB conference
+    speakerphone via <a href="https://robertasta.github.io/speakerphone-assist/">Speakerphone Assist</a>.</li>
+  </ol>
+  <p>Home Assistant already has Lithuanian intents (<i>“įjunk šviesą svetainėje”</i>).</p>
+</section>
+
+<section class="wrap">
+  <h2>Whose model this is</h2>
+  <div class="autorius">
+    <p><b>The ears are Kristijonas Jakubsonas's.</b> His model
+    <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4"><b>kmynas-parakeet-lt-v4</b></a> is NVIDIA
+    Parakeet-TDT 0.6B v3 fine-tuned on 3,087 hours of Lithuanian speech from Vilnius University's LIEPA-3 corpus,
+    published under CC BY 4.0 with an honest model card.</p>
+    <p>We (Robertas and Claude) added only the packaging: conversion to ONNX, int8 compression that keeps the
+    accuracy, a Wyoming server, measurements and install guides. If you use or redistribute the model, credit
+    Kristijonas Jakubsonas and say what you changed.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>What it does not do</h2>
+  <ul class="isl">
+    <li><b>It needs a wake word and voice activity detection (VAD) in front of it.</b> The server transcribes
+    whatever it receives and makes up text from pure noise — like every speech-recognition model.</li>
+    <li><b>Home Assistant's Whisper add-on does not offer it by itself.</b> Our proposal to pick it automatically
+    for Lithuanian is still awaiting review; until then use route B or C above.</li>
+    <li><b>The numbers come from one machine.</b> Speed will differ on another CPU; int8 accuracy matched across
+    the CPUs we tried.</li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <h2>Questions people ask</h2>
+  <dl class="duk">
+    <dt>Can Home Assistant understand Lithuanian?</dt>
+    <dd>Yes. Home Assistant already has Lithuanian commands; what was missing is good speech recognition. The
+    default Whisper <i>base</i> gets 88 % of Lithuanian words wrong, LT_ausys 10.6 %.</dd>
+    <dt>Does it need the internet or a GPU?</dt>
+    <dd>No. The model runs on a CPU (4 cores, 4 GB of RAM) and no audio leaves your network.</dd>
+    <dt>How is it different from Paprika?</dt>
+    <dd>Paprika is also Kristijonas Jakubsonas's model, but a Whisper one: accurate, yet several seconds per
+    command on a CPU. LT_ausys is a different kind of model (Parakeet) and more than 15 times faster.</dd>
+    <dt>Can I use it in a commercial product?</dt>
+    <dd>The model's CC BY 4.0 licence allows it with attribution. Read the licences before you ship it.</dd>
+  </dl>
+</section>
+
+<section class="wrap">
+  <h2>Stuck? Ask an AI</h2>
+  <div class="ask">
+    <p><b>Not a programmer?</b> Paste this into any AI chat (Claude, ChatGPT or another) and keep asking in your
+    own words:</p>
+    <p><code>Read https://raw.githubusercontent.com/RobertasTa/lt-ausys/main/AI_CONSULTANT_BRIEF.md
+    and help me connect the LT_ausys Lithuanian speech recognition to Home Assistant.</code></p>
+    <p>That file lists what the assistant must ask before advising and what it must not claim.</p>
+  </div>
+</section>
+
+<section class="wrap padekos">
+  <h2>Thanks</h2>
+  <p><b>Kristijonas Jakubsonas</b> — for the model itself. <b>NVIDIA</b> — for Parakeet-TDT 0.6B v3 (CC BY 4.0).
+  <b>Vilnius University and raštija.lt</b> — for the LIEPA-3 corpus (CC BY 4.0). <b>Ilya Stupakov</b> — for
+  onnx-asr, <b>Microsoft</b> — for onnxruntime, <b>Open Home Foundation</b> — for the Wyoming protocol.</p>
+  <p>No institution sponsors this project. Full credits with licences are
+  <a href="https://github.com/RobertasTa/lt-ausys#credits">at the end of the README</a>.</p>
+</section>
+
+<footer class="wrap">
+  <p><a href="https://github.com/RobertasTa/lt-ausys">GitHub</a> ·
+     <a href="https://huggingface.co/RobertasTa/lt-ausys">Hugging Face</a> ·
+     <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4">Original model</a> ·
+     <a href="https://github.com/RobertasTa/lt-ausys/blob/main/LICENSE">Code GPL v3</a> ·
+     <a href="https://creativecommons.org/licenses/by/4.0/">Model CC BY 4.0</a></p>
+  <p>Part of <a href="https://robertasta.github.io/">Claude's Gifts to the World</a> — free, open-source gifts.</p>
+  <p class="sig">A gift from Claude and Robertas</p>
+  <p class="di">Banner illustration made with AI.</p>
+</footer>
+
+</body>
+</html>

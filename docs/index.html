@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-site-verification" content="ngCuEME8a9C8od6O7mw1EHMId6BzZqJE9-xi-NIyy-Y" />
+<title>Lietuviškas balso atpažinimas Home Assistant'ui — LT_ausys</title>
+<meta name="description" content="Nemokamas lietuvių kalbos atpažinimas (šneka į tekstą) Home Assistant ir Wyoming: balso komanda atpažįstama per 0,2 s ant paprasto procesoriaus, be vaizdo plokštės ir be interneto.">
+<link rel="canonical" href="https://robertasta.github.io/lt-ausys/">
+<meta property="og:title" content="LT_ausys — lietuviškas balso atpažinimas Home Assistant'ui">
+<meta property="og:description" content="Lietuviškos ausys balso asistentui: 0,2 s komandai ant procesoriaus, be debesies. Kristijono Jakubsono kmynas modelis ONNX/int8 formatu su Wyoming serveriu.">
+<meta property="og:image" content="https://robertasta.github.io/lt-ausys/banner.png">
+<meta property="og:url" content="https://robertasta.github.io/lt-ausys/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="lt_LT">
+<link rel="alternate" hreflang="lt" href="https://robertasta.github.io/lt-ausys/">
+<link rel="alternate" hreflang="en" href="https://robertasta.github.io/lt-ausys/en/">
+<link rel="alternate" hreflang="x-default" href="https://robertasta.github.io/lt-ausys/en/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "LT_ausys",
+  "alternateName": "lt-ausys",
+  "description": "Lietuvių kalbos atpažinimas (speech to text) Home Assistant ir Wyoming protokolui: Parakeet-TDT modelis kmynas v4 ONNX/int8 formatu, veikia ant procesoriaus be interneto.",
+  "url": "https://robertasta.github.io/lt-ausys/",
+  "codeRepository": "https://github.com/RobertasTa/lt-ausys",
+  "programmingLanguage": "Python",
+  "runtimePlatform": "Linux, onnxruntime",
+  "inLanguage": "lt",
+  "license": "https://www.gnu.org/licenses/gpl-3.0.html",
+  "keywords": "lietuviškas balso atpažinimas, kalbos atpažinimas lietuvių kalba, Home Assistant lietuviškai, Lithuanian speech to text, Lithuanian ASR, Wyoming STT, Parakeet, ONNX, offline",
+  "author": [
+    {"@type": "Person", "name": "Robertas Tarasevičius"},
+    {"@type": "Organization", "name": "Claude (Anthropic)"}
+  ],
+  "isBasedOn": {
+    "@type": "CreativeWork",
+    "name": "kmynas-parakeet-lt-v4",
+    "url": "https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4",
+    "author": {"@type": "Person", "name": "Kristijonas Jakubsonas"},
+    "license": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "sameAs": [
+    "https://github.com/RobertasTa/lt-ausys",
+    "https://huggingface.co/RobertasTa/lt-ausys"
+  ]
+}
+</script>
+<style>
+  :root{
+    --bg:#010d24; --bg2:#06173a; --card:#0b1f47;
+    --text:#f5f7fc; --muted:#bcc4d6; --amber:#e8b84b; --line:#1d3560;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.6}
+  a{color:var(--amber)}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  header{padding:48px 0 36px;text-align:center}
+  header img.baneris{width:100%;height:auto;max-width:820px;border-radius:10px;border:1px solid var(--line);margin-bottom:26px}
+  h1{font-size:2.4rem;font-weight:700;letter-spacing:.5px}
+  .tagline{font-size:1.25rem;color:var(--muted);margin-top:10px}
+  .amber{color:var(--amber);font-style:italic;margin-top:8px}
+  .actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:30px 0 8px}
+  .btn{display:inline-block;padding:12px 26px;border-radius:8px;font-weight:600;text-decoration:none}
+  .btn-amber{background:var(--amber);color:#1a1200}
+  .btn-ghost{border:1px solid var(--line);color:var(--text)}
+  section{padding:36px 0;border-top:1px solid var(--line)}
+  section p+p{margin-top:12px}
+  h2{font-size:1.4rem;margin-bottom:18px}
+  h3{font-size:1.08rem;margin:22px 0 8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+  .card h3{font-size:1.02rem;margin:0 0 6px}
+  .card p{color:var(--muted);font-size:.95rem}
+  .lentele{overflow-x:auto;margin-top:6px}
+  table{border-collapse:collapse;width:100%;font-size:.95rem}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left}
+  th{background:var(--bg2)}
+  td.sk{text-align:right;white-space:nowrap}
+  tr.mes td{color:var(--amber);font-weight:600}
+  .pastaba{color:var(--muted);font-size:.92rem;margin-top:10px}
+  ol.grandine{margin:6px 0 0 22px}
+  ol.grandine li+li{margin-top:8px}
+  .autorius{background:var(--bg2);border:1px solid var(--amber);border-radius:12px;padding:24px}
+  .autorius p{color:var(--muted)}
+  .autorius p b{color:var(--text)}
+  .ask{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:24px}
+  .ask p{color:var(--muted)}
+  .ask code{overflow-wrap:anywhere}
+  pre{background:#00081a;border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:.9rem;margin-top:8px}
+  code{font-family:Consolas,"Courier New",monospace}
+  .zyma{color:var(--muted);font-size:.95rem;border-left:3px solid var(--amber);padding-left:14px;margin-top:18px}
+  ul.isl{margin:0 0 0 22px;color:var(--muted)}
+  ul.isl li+li{margin-top:8px}
+  dl.duk dt{font-weight:600;margin-top:16px}
+  dl.duk dd{color:var(--muted);margin-top:4px}
+  .padekos p{color:var(--muted);font-size:.95rem}
+  footer{padding:36px 0 48px;text-align:center;color:var(--muted);font-size:.92rem;border-top:1px solid var(--line)}
+  footer .sig{color:var(--amber);font-style:italic;margin-top:6px}
+  footer .di{font-size:.85rem;margin-top:10px}
+  .kalba{display:flex;justify-content:flex-end;gap:8px;padding-top:16px;font-size:.92rem;color:var(--muted)}
+  .kalba b{color:var(--amber)}
+</style>
+</head>
+<body>
+
+<nav class="kalba wrap" aria-label="Language / Kalba"><b>LT</b> · <a href="en/" hreflang="en" lang="en">EN</a></nav>
+
+<header class="wrap">
+  <img class="baneris" src="banner.png" width="1774" height="887" alt="LT_ausys — lietuviškas kalbos atpažinimas: robotinė ranka laiko dovanų dėžutę po švytinčiu gaubliu (iliustracija sukurta naudojant DI)">
+  <h1>LT_ausys — lietuviškos ausys</h1>
+  <p class="tagline">Lietuviškas balso atpažinimas Home Assistant'ui: balso komanda per 0,2 s ant paprasto procesoriaus.</p>
+  <p class="amber">Lietuviškai. Vietoje. Nemokamai.</p>
+  <div class="actions">
+    <a class="btn btn-amber" href="https://huggingface.co/RobertasTa/lt-ausys">Modelis Hugging Face'e</a>
+    <a class="btn btn-ghost" href="https://github.com/RobertasTa/lt-ausys/blob/main/README_lt.md">Kodas GitHub'e</a>
+    <a class="btn btn-ghost" href="https://github.com/RobertasTa/lt-ausys/blob/main/README_lt.md#b-wyoming-serveris-bet-koks-linux-išbandyta-proxmox-lxc-konteineryje">Wyoming serveris</a>
+  </div>
+</header>
+
+<section class="wrap">
+  <h2>Kalbos atpažinimas lietuvių kalba — namie, be debesies</h2>
+  <p>Balso asistentui reikia burnos ir ausų. Ausys — tai kalbos atpažinimas (angl. <i>speech to text</i>, STT):
+  jos išgirsta <i>„Įjunk šviesą svetainėje“</i> ir paverčia tekstu, kurį Home Assistant supranta. LT_ausys yra
+  <b>Kristijono Jakubsono</b> lietuviškas modelis, mūsų perkeltas į ONNX ir suspaustas, kad sparčiai veiktų ant
+  procesoriaus, be vaizdo plokštės, ir paduodamas per Wyoming protokolą — tą patį, kuriuo Home Assistant jungia
+  savo balso tarnybas.</p>
+  <div class="grid" style="margin-top:22px">
+    <div class="card"><h3>Žaibiškai</h3><p>Balso komandą atpažįsta per 0,21 s. Whisper šeimos modeliai (ir Paprika) tame pačiame mini PC užtrunka 3,55 s: jie kiekvienai, net trumpiausiai frazei koduoja 30 sekundžių langą.</p></div>
+    <div class="card"><h3>Be vaizdo plokštės</h3><p>Užtenka 4 procesoriaus branduolių ir 4 GB atminties — mini PC ar Proxmox konteinerio. Suspaustas (int8) modelis — 0,9 GB.</p></div>
+    <div class="card"><h3>Tiksliau</h3><p>Skaitomoje kalboje (FLEURS) klysta 10,6 % žodžių, Paprika — 12,0 %. Home Assistant numatytasis Whisper <i>base</i> lietuviškai — 88 %.</p></div>
+    <div class="card"><h3>Be interneto</h3><p>Viskas sukasi jūsų kompiuteryje ar namų serveryje. Jokios paskyros, jokio API rakto, jokio mėnesinio mokesčio. Tai, kas pasakyta namuose, niekur neišeina.</p></div>
+    <div class="card"><h3>Rašo kaip žmogus</h3><p>Išvestis — normali rašytinė lietuvių kalba: su skyryba, didžiosiomis raidėmis ir skaičiais žodžiais (<i>„Įjunk šviesą svetainėje dvidešimt procentų.“</i>).</p></div>
+    <div class="card"><h3>Laisva naudoti</h3><p>Modelis — CC BY 4.0, kaip ir originalas: galima naudoti ir komerciškai, nurodant Kristijoną Jakubsoną. Serverio ir įrankių kodas — GPL-3.0.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Kodėl ne Whisper</h2>
+  <p>Whisper — populiariausias atviras kalbos atpažinimo modelis, bet kiekvienai frazei, kad ir kokiai trumpai,
+  jis koduoja fiksuotą 30 sekundžių langą. Ant procesoriaus tai kelių sekundžių kaina kiekvienai komandai.
+  LT_ausys pagrindas — NVIDIA Parakeet-TDT transduseris, kuris apdoroja tik tiek garso, kiek jam paduota.
+  Ta pati mašina (Ryzen 7 8845HS mini PC, 4 gijos), tos pačios 127 namų komandos:</p>
+  <div class="lentele">
+  <table>
+    <tr><th></th><th>komandai</th><th>FLEURS žodžių klaidos</th><th>komandų ketinimo egzaminas</th></tr>
+    <tr class="mes"><td>LT_ausys (int8)</td><td class="sk">0,21 s</td><td class="sk">10,6 %</td><td class="sk">101 / 119</td></tr>
+    <tr><td>Paprika (Whisper large-v3-turbo)</td><td class="sk">3,55 s</td><td class="sk">12,0 %</td><td class="sk">93 / 119</td></tr>
+    <tr><td>faster-whisper tiny</td><td class="sk">0,73 s</td><td class="sk">99 %</td><td class="sk">17 / 119</td></tr>
+  </table>
+  </div>
+  <p class="pastaba">Išmatuota 2026-10-24 vienoje mašinoje. Pilnos lentelės, testų rinkiniai ir išlygos —
+  <a href="https://github.com/RobertasTa/lt-ausys/blob/main/docs/results.md">docs/results.md</a>.</p>
+</section>
+
+<section class="wrap">
+  <h2>Kaip pradėti: Home Assistant lietuviškai</h2>
+  <p>Trys keliai — rinkitės tą, kuris arčiausiai to, ką jau turite.</p>
+
+  <h3>A. Tik Python</h3>
+  <pre><code>pip install "onnx-asr[cpu,hub]"</code></pre>
+  <pre><code>import onnx_asr
+model = onnx_asr.load_model("RobertasTa/lt-ausys", quantization="int8")
+print(model.recognize("komanda.wav"))   # 16 kHz mono WAV</code></pre>
+
+  <h3>B. Savas mažas Wyoming serveris (Linux arba Docker)</h3>
+  <p>Apie 5 minutės: Python aplinka su systemd tarnyba arba vienas Docker vaizdas. Visas receptas —
+  <a href="https://github.com/RobertasTa/lt-ausys/blob/main/README_lt.md#b-wyoming-serveris-bet-koks-linux-išbandyta-proxmox-lxc-konteineryje">README faile</a>.
+  Serveris klauso prievado <code>10302</code>.</p>
+
+  <h3>C. Jau sukasi <code>wyoming-faster-whisper</code>?</h3>
+  <p>Nuo 3.9 versijos jis turi <code>onnx-asr</code> variklį, tad naujo serverio nereikia:</p>
+  <pre><code>wyoming-faster-whisper --uri tcp://0.0.0.0:10302 --stt-library onnx-asr \
+    --model RobertasTa/lt-ausys --language lt --data-dir /data --download-dir /data</code></pre>
+  <p class="pastaba">Šis kelias krauna didesnį fp32 modelį (2,5 GB) ir nepaiso gijų skaičiaus; jei norite int8 —
+  naudokite B kelią. <a href="https://github.com/RobertasTa/lt-ausys/blob/main/README_lt.md#d-jau-sukasi-wyoming-faster-whisper-naujo-serverio-nereikia">Kodėl</a>.</p>
+
+  <h3>Tada Home Assistant</h3>
+  <p>Nustatymai → Įrenginiai ir paslaugos → <b>Pridėti integraciją → Wyoming Protocol</b> → serverio adresas ir
+  prievadas <code>10302</code>. Assist balso grandinėje pasirinkite <code>lt_ausys</code> kaip
+  <i>Speech-to-text</i> variklį ir kalbą — lietuvių.</p>
+</section>
+
+<section class="wrap">
+  <h2>Visa lietuviška balso grandinė</h2>
+  <p>Kad Home Assistant suprastų ir atsakytų lietuviškai, reikia trijų dalių. Visos — nemokamos ir veikia namuose:</p>
+  <ol class="grandine">
+    <li><b>Ausys</b> — šis projektas: lietuviškos šnekos atpažinimas.</li>
+    <li><b>Burna</b> — lietuviškas Piper balsas <a href="https://robertasta.github.io/reginute/">Reginutė</a>
+    arba <a href="https://robertasta.github.io/ingute/">Ingutė</a>: atsakymai balsu, su teisingais kirčiais.</li>
+    <li><b>Mikrofonas kambaryje</b> — Home Assistant Voice PE, ESPHome palydovas arba USB konferencinė kolonėlė per
+    <a href="https://robertasta.github.io/speakerphone-assist/">Speakerphone Assist</a>.</li>
+  </ol>
+  <p>Paties Home Assistant lietuviškos komandos (<i>„įjunk šviesą svetainėje“</i>) jau yra.</p>
+</section>
+
+<section class="wrap">
+  <h2>Kieno tai modelis</h2>
+  <div class="autorius">
+    <p><b>Ausys — Kristijono Jakubsono.</b> Modelis
+    <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4"><b>kmynas-parakeet-lt-v4</b></a> — tai NVIDIA
+    Parakeet-TDT 0.6B v3, jo damokytas 3 087 valandomis lietuviškos kalbos iš Vilniaus universiteto LIEPA-3 garsyno
+    ir paskelbtas CC BY 4.0 licencija su sąžininga kortele.</p>
+    <p>Mes (Robertas ir Claude) pridėjome tik pakavimą: perkėlimą į ONNX, suspaudimą į int8 taip, kad nenukentėtų
+    tikslumas, Wyoming serverį, matavimus ir diegimo gidus. Jei naudojate ar platinate modelį — nurodykite Kristijoną
+    Jakubsoną ir pasakykite, ką pakeitėte.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Ko jis nedaro</h2>
+  <ul class="isl">
+    <li><b>Prieš jį reikia žadinimo žodžio ir balso aptikimo (VAD).</b> Serveris atpažįsta viską, ką gauna, o iš
+    gryno triukšmo prigalvoja teksto — kaip ir kiekvienas kalbos atpažinimo modelis.</li>
+    <li><b>Home Assistant Whisper priedas jo savaime nesiūlo.</b> Mūsų pasiūlymas, kad lietuvių kalbai jis būtų
+    parenkamas automatiškai, dar laukia peržiūros; iki tol — B arba C kelias aukščiau.</li>
+    <li><b>Skaičiai — vienos mašinos.</b> Kitame procesoriuje greitis bus kitoks; tikslumas int8 modeliui
+    skirtinguose procesoriuose sutapo.</li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <h2>Dažni klausimai</h2>
+  <dl class="duk">
+    <dt>Ar Home Assistant gali suprasti lietuviškai?</dt>
+    <dd>Taip. Lietuviškos komandos Home Assistant jau yra; trūksta gero kalbos atpažinimo. Numatytasis Whisper
+    <i>base</i> lietuviškai klysta 88 % žodžių, LT_ausys — 10,6 %.</dd>
+    <dt>Ar reikia interneto ar vaizdo plokštės?</dt>
+    <dd>Ne. Modelis veikia ant procesoriaus (4 branduoliai, 4 GB atminties), o garsas niekur nesiunčiamas.</dd>
+    <dt>Kuo tai skiriasi nuo Paprikos?</dt>
+    <dd>Paprika — taip pat Kristijono Jakubsono modelis, bet Whisper tipo; jis tikslus, tačiau ant procesoriaus
+    komandai užtrunka kelias sekundes. LT_ausys — kito tipo (Parakeet) ir greitesnis daugiau nei 15 kartų.</dd>
+    <dt>Ar galima naudoti komerciniame produkte?</dt>
+    <dd>Modelio licencija CC BY 4.0 tai leidžia, jei nurodote autorių. Prieš dėdami į produktą, perskaitykite
+    licencijas.</dd>
+  </dl>
+</section>
+
+<section class="wrap">
+  <h2>Nesiseka? Paklauskit dirbtinio intelekto</h2>
+  <div class="ask">
+    <p><b>Ne programuotojas?</b> Įklijuokit į bet kurį dirbtinio intelekto pokalbį (Claude, ChatGPT ar kitą) šią
+    frazę ir toliau klausinėkit savo žodžiais:</p>
+    <p><code>Perskaityk https://raw.githubusercontent.com/RobertasTa/lt-ausys/main/AI_CONSULTANT_BRIEF.md
+    ir padėk man prijungti lietuviškas ausis LT_ausys prie Home Assistant.</code></p>
+    <p>Tame faile surašyta, ko asistentas turi paklausti prieš patardamas ir ko negali teigti.</p>
+  </div>
+</section>
+
+<section class="wrap padekos">
+  <h2>Ačiū</h2>
+  <p><b>Kristijonui Jakubsonui</b> — už patį modelį. <b>NVIDIA</b> — už Parakeet-TDT 0.6B v3 (CC BY 4.0).
+  <b>Vilniaus universitetui ir raštija.lt</b> — už LIEPA-3 garsyną (CC BY 4.0). <b>Ilya Stupakovui</b> — už
+  onnx-asr, <b>Microsoft</b> — už onnxruntime, <b>Open Home Foundation</b> — už Wyoming protokolą.</p>
+  <p>Nė viena įstaiga šio projekto neremia. Pilnos padėkos su licencijomis —
+  <a href="https://github.com/RobertasTa/lt-ausys/blob/main/README_lt.md#padėkos">README pabaigoje</a>.</p>
+</section>
+
+<footer class="wrap">
+  <p><a href="https://github.com/RobertasTa/lt-ausys">GitHub</a> ·
+     <a href="https://huggingface.co/RobertasTa/lt-ausys">Hugging Face</a> ·
+     <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4">Originalus modelis</a> ·
+     <a href="https://github.com/RobertasTa/lt-ausys/blob/main/LICENSE">Kodas GPL v3</a> ·
+     <a href="https://creativecommons.org/licenses/by/4.0/deed.lt">Modelis CC BY 4.0</a></p>
+  <p>Dalis <a href="https://robertasta.github.io/">Claude's Gifts to the World</a> — nemokamų atviro kodo dovanų.</p>
+  <p class="sig">Dovana nuo Claude ir Roberto</p>
+  <p class="di">Banerio iliustracija sukurta naudojant DI.</p>
+</footer>
+
+</body>
+</html>
