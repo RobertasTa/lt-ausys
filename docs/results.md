@@ -76,6 +76,24 @@ The dictionary was tuned for Paprika's typical mistakes over several weeks; LT_a
   Quantizing the convolutions is what hurts — and it also makes the model 2–4× slower on this CPU.
   Quantizing the decoder on top of the MatMul-only encoder: 100/119 for 54 MB saved — not taken.
 
+## 2026-11-03: the general Whisper large-v3
+
+The same FLEURS sentences and the same 127 commands with the same normalisation, measured on the work PC's NVIDIA RTX
+GPU with faster-whisper (Systran CTranslate2 build of OpenAI's large-v3, `int8_float16`), language forced to Lithuanian.
+
+| model | FLEURS: WER · CER | commands: WER · CER |
+|---|---|---|
+| Whisper large-v3, beam 5 | 24.23 % · 6.12 % | 49.46 % · 20.65 % |
+| Whisper large-v3, beam 1 | 25.41 % · 6.38 % | 52.04 % · 21.89 % |
+| kmynas v4 fp32 (NeMo), same GPU stand | 10.55 % · 6.17 % | 18.06 % · 9.62 % |
+| **LT_ausys v0 int8** (table above, CPU) | **10.58 %** · 6.15 % | **17.4 %** |
+
+The character error rate is about the same, the word error rate 2.3× (FLEURS) and 2.8× (commands) higher: the general
+model gets most letters right but bends Lithuanian words — *atsatė* for *atstatė*, *sutikė* for *suteikė*, *nuostotų*
+for *nuostatų*, *sąlygės* for *sąlygas*. Only 12 % of its wrong words differ from the reference by diacritics alone.
+Unlike the other models, it writes some numbers as digits (208 of 986 FLEURS outputs), which can only help it against
+the references that use digits.
+
 ## Caveats
 
 * The command set is **one speaker**. It shows the behaviour on short home commands, not generalisation across voices.

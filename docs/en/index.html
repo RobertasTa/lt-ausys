@@ -151,6 +151,10 @@
   </div>
   <p class="pastaba">Measured on 2026-10-24 on one machine. Full tables, test sets and caveats:
   <a href="https://github.com/RobertasTa/lt-ausys/blob/main/docs/results.md">docs/results.md</a>.</p>
+  <p>The general <b>Whisper large-v3</b>, not fine-tuned for Lithuanian (2026-11-03, same sentences and commands, on a GPU),
+  gets <b>24.2 %</b> of FLEURS words and <b>49.5 %</b> of command words wrong — two to three times as often as LT_ausys. It
+  gets most letters right but bends the words: <i>atsatė</i> for <i>atstatė</i>, <i>sutikė</i> for <i>suteikė</i>. All open
+  Lithuanian models compared: <a href="https://github.com/RobertasTa/awesome-lithuanian-speech#benchmarks">Awesome Lithuanian Speech</a>.</p>
 </section>
 
 <section class="wrap">
