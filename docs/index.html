@@ -222,6 +222,9 @@ print(model.recognize("komanda.wav"))   # 16 kHz mono WAV</code></pre>
     gryno triukšmo prigalvoja teksto — kaip ir kiekvienas kalbos atpažinimo modelis.</li>
     <li><b>Home Assistant Whisper priedas jo savaime nesiūlo.</b> Mūsų pasiūlymas, kad lietuvių kalbai jis būtų
     parenkamas automatiškai, dar laukia peržiūros; iki tol — B arba C kelias aukščiau.</li>
+    <li><b>Retai rašo taškus.</b> Ilgoje ištisinėje kalboje tekstas virsta vienu ilgu sakiniu. Komandoms tai nesvarbu;
+    diktavimui imkite ankstesnę versiją (Hugging Face revizija <code>v1-kmynas</code>) — taip daro ir mūsų diktavimo
+    programa <a href="https://robertasta.github.io/diktuokle/index.html">Diktuoklė</a>.</li>
     <li><b>Skaičiai — vienos mašinos.</b> Kitame procesoriuje greitis bus kitoks; tikslumas int8 modeliui
     skirtinguose procesoriuose sutapo.</li>
   </ul>

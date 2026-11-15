@@ -31,6 +31,11 @@ neišeina iš namų.
 Išvestis — normali rašytinė lietuvių kalba: skyryba, didžiosios; skaičiai nuo 10 — skaitmenimis, 1–9 — žodžiais
 (*„Įjunk šviesą svetainėje 20 procentų."*).
 
+> ⚠️ **Diktavimui imkite ankstesnę versiją.** Šios ausys retai rašo taškus: ~45 s ištisinėje kalboje jos rado 2,8 %
+> sakinių ribų (kmynas — 84,7 %) ir maždaug pusę kablelių. Komandoms tai nesvarbu; tekstui, kurį žmonės skaito, imkite
+> Hugging Face reviziją `v1-kmynas` — taip daro ir mūsų diktavimo programa
+> [Diktuoklė](https://github.com/RobertasTa/diktuokle) ([skaičiai](docs/results.md)).
+
 ## Kodėl ne Whisper
 
 Whisper šeimos modeliai kiekvienai frazei, kad ir kokiai trumpai, koduoja fiksuotą **30 sekundžių langą**. Ant

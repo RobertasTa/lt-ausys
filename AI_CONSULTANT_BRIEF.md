@@ -57,6 +57,9 @@ each step checkable.
   be plain JSON (the onnx-asr docs example contains `//` comments — remove them).
 * **Output style:** punctuation and casing, numbers from 10 up as digits ("20 procentų"), as the original model was
   trained. Do not add a punctuation step on top. Home Assistant intents may need the digit form in sentences.
+  **It rarely writes full stops** (82 of 986 FLEURS sentences; in ~45 s of speech sentence-boundary F1 5.5 % vs kmynas
+  89.9 %). Someone who wants dictation, not commands, should use revision `v1-kmynas` (`model_type:
+  nemo-conformer-tdt`) — Diktuoklė does.
 * **Known gaps:** on the intent exam 4 of 119 commands came out as a different command and 12 were not understood.
   Utterances over ~20 s should be split by a VAD. GPU providers untested.
 

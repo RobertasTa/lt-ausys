@@ -126,6 +126,11 @@ Speed and memory, Wyoming server in an LXC on the same Ryzen 7 8845HS, 4 threads
   references are written. On the 770 FLEURS sentences without numbers (NeMo, GPU) Upelis has 5.3 % WER, kmynas 5.9 %
   — still better, by less.
 * **int8 costs almost nothing:** 0.05 points on FLEURS, 0.4 on commands, the same exam score.
+* **Full stops: rarely.** 82 of 986 FLEURS outputs end with one (the NeMo checkpoint the same; kmynas 99 %). Measured
+  on Diktuoklė's bench (40 recordings of ~45 s, several FLEURS sentences each, punctuated reference rebuilt from FLEURS;
+  only matched words count): sentence boundaries inside the text F1 **5.5 %** (kmynas 89.9 %), commas F1 58.0 % (kmynas
+  82.6 %), while word errors are lower (8.6 % vs 10.2 %). On single FLEURS sentences commas are as good as kmynas'
+  (F1 84.7 % vs 85.6 %). For commands this does not matter; for dictation use revision `v1-kmynas` — Diktuoklė does.
 
 ## Caveats
 

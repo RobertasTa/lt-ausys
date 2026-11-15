@@ -31,6 +31,11 @@ your house.
 Output is normal written Lithuanian: punctuation, capitals; numbers from 10 up as digits, 1–9 as words
 (*„Įjunk šviesą svetainėje 20 procentų."*).
 
+> ⚠️ **For dictation, take the previous version.** These ears rarely write full stops: in ~45 s of continuous
+> speech they found 2.8 % of the sentence boundaries (kmynas 84.7 %) and about half the commas. For commands this does
+> not matter; for text people read, use Hugging Face revision `v1-kmynas` — our dictation app
+> [Diktuoklė](https://github.com/RobertasTa/diktuokle) does ([numbers](docs/results.md)).
+
 ## Why not Whisper
 
 Whisper-family models encode a fixed **30-second window** for every utterance, however short. On a CPU that is a

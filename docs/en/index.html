@@ -220,6 +220,9 @@ print(model.recognize("command.wav"))   # 16 kHz mono WAV</code></pre>
     whatever it receives and makes up text from pure noise — like every speech-recognition model.</li>
     <li><b>Home Assistant's Whisper add-on does not offer it by itself.</b> Our proposal to pick it automatically
     for Lithuanian is still awaiting review; until then use route B or C above.</li>
+    <li><b>It rarely writes full stops.</b> In long continuous speech the text becomes one long sentence. For commands
+    this does not matter; for dictation take the previous version (Hugging Face revision <code>v1-kmynas</code>), as
+    our dictation app <a href="https://robertasta.github.io/diktuokle/en/index.html">Diktuoklė</a> does.</li>
     <li><b>The numbers come from one machine.</b> Speed will differ on another CPU; int8 accuracy matched across
     the CPUs we tried.</li>
   </ul>
