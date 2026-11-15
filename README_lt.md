@@ -3,17 +3,19 @@
 ![LT_ausys — robotinė ranka laiko dovanų dėžutę su užrašu lt-ausys po švytinčiu gaubliu; kampe LIEPA-3 garsyno įstaigų ženklai (iliustracija sukurta naudojant DI)](docs/banner.png)
 
 **Lietuviškas kalbos atpažinimas, kuris sukasi ant mažo procesoriaus pakankamai greitai balso asistentui: 0,2 s
-komandai vietoj 3,5 s.** Parakeet-TDT modelis, apmokytas 3 087 valandomis lietuviškos kalbos, perkeltas į ONNX ir
-suspaustas, paduodamas per Wyoming protokolą — be vaizdo plokštės, be PyTorch, niekas neišeina iš namų.
+komandai vietoj 3,5 s.** Lietuviškai išmokytas transduserio modelis ([Upelis](https://huggingface.co/datolabs/upelis-0.6b-lt-v1),
+Datolabs), perkeltas į ONNX ir suspaustas, paduodamas per Wyoming protokolą — be vaizdo plokštės, be PyTorch, niekas
+neišeina iš namų.
 
 🌐 [English](README.md) · **Lietuvių** · [Русский](README_ru.md)
 
 > ℹ️ Sukurta naudojant DI: konversiją, serverį, matavimus ir šiuos tekstus darė Claude (Anthropic) kartu su Robertu,
-> išbandyta su tikra įranga. Pats modelis — Kristijono Jakubsono, žr. [Padėkos](#padėkos).
+> išbandyta su tikra įranga. Pats modelis — Datolabs Upelis (nuo 2026-11-15; iki tol buvo Kristijono Jakubsono kmynas),
+> žr. [Padėkos](#padėkos).
 
-> Išmatuota 2026-10-24 ant Ryzen 7 8845HS mini PC (4 gijos, Proxmox LXC): 2–6 s balso komanda atpažįstama per
-> **0,21 s** (Whisper large-v3-turbo / Paprika tame pačiame procesoriuje: 3,55 s), FLEURS lietuviška WER **10,6 %**
-> (Paprika 12,0 %). Nuo to vakaro — namų balso asistento ausys.
+> Išmatuota 2026-11-15 ant Ryzen 7 8845HS mini PC (4 gijos, Proxmox LXC): 2–6 s balso komanda atpažįstama per
+> **0,18 s** (Whisper large-v3-turbo / Paprika tame pačiame procesoriuje: 3,55 s), FLEURS lietuviška WER **8,3 %**
+> (Paprika 12,0 %). Ankstesnė versija nuo 2026-10-24 — namų balso asistento ausys.
 
 ---
 
@@ -21,23 +23,24 @@ suspaustas, paduodamas per Wyoming protokolą — be vaizdo plokštės, be PyTor
 
 | | |
 |---|---|
-| **Modelis** | [`RobertasTa/lt-ausys`](https://huggingface.co/RobertasTa/lt-ausys) Hugging Face'e — fp32 (2,5 GB) ir int8 (0,9 GB), [onnx-asr](https://github.com/istupakov/onnx-asr) katalogo formatu. CC BY 4.0. |
+| **Modelis** | [`RobertasTa/lt-ausys`](https://huggingface.co/RobertasTa/lt-ausys) Hugging Face'e — fp32 (2,5 GB) ir int8 (0,7 GB), [onnx-asr](https://github.com/istupakov/onnx-asr) katalogo formatu. OpenMDW-1.1 (laikyk `LICENSE` ir `NOTICE`). |
 | **Serveris** | [`server/lt_ausys_server.py`](server/lt_ausys_server.py) — Wyoming kalbos atpažinimo serveris (~120 eil.) + systemd unit'as. Home Assistant jį randa kaip Wyoming integraciją. |
-| **Receptas** | [`tools/`](tools/) — bet kurį NeMo Parakeet modelį į ONNX, suspausti taip, kad nekenktų, išmatuoti. |
+| **Receptas** | [`tools/`](tools/) — NeMo transduserio modelį į ONNX (Parakeet arba modelį su kalbos užuomina, kaip Upelis), suspausti taip, kad nekenktų, išmatuoti. |
 | **Skaičiai** | [`docs/results.md`](docs/results.md) — trys testų rinkiniai, keturi modeliai, viena mašina. |
 
-Išvestis — normali rašytinė lietuvių kalba: skyryba, didžiosios, skaičiai žodžiais (*„Įjunk šviesą svetainėje
-dvidešimt procentų."*).
+Išvestis — normali rašytinė lietuvių kalba: skyryba, didžiosios; skaičiai nuo 10 — skaitmenimis, 1–9 — žodžiais
+(*„Įjunk šviesą svetainėje 20 procentų."*).
 
 ## Kodėl ne Whisper
 
 Whisper šeimos modeliai kiekvienai frazei, kad ir kokiai trumpai, koduoja fiksuotą **30 sekundžių langą**. Ant
 procesoriaus tai pastovi kelių sekundžių kaina komandai, ir joks suspaudimas jos nepanaikina. Transduseris
-(Parakeet-TDT) apdoroja tik tiek garso, kiek jam paduota. Ta pati mašina, tos pačios 127 namų komandos:
+(RNN-T / TDT) apdoroja tik tiek garso, kiek jam paduota. Ta pati mašina, tos pačios 127 namų komandos:
 
 | | komandai | FLEURS WER | komandų ketinimo egzaminas |
 |---|---|---|---|
-| **LT_ausys v0 int8** | **0,21 s** | **10,6 %** | **101 / 119** |
+| **LT_ausys int8** | **0,18 s** | **8,3 %** | **103 / 119** |
+| LT_ausys iki 2026-11-15 (kmynas, int8) | 0,21 s | 10,6 % | 101 / 119 |
 | Paprika (Whisper large-v3-turbo, CT2 int8) | 3,55 s | 12,0 % | 93 / 119 |
 | faster-whisper tiny int8 | 0,73 s | 99 % | 17 / 119 |
 
@@ -49,7 +52,7 @@ Pilnos lentelės, rinkiniai ir išlygos: [docs/results.md](docs/results.md).
 vaizdo plokštei) — lietuviškoje skaitomoje kalboje jie daro **88 % ir 66 % žodžių klaidų** (mūsų matavimas
 [wyoming-faster-whisper PR #122](https://github.com/OHF-Voice/wyoming-faster-whisper/pull/122)): grandinė žalia,
 sakiniai atrodo kaip sakiniai, o namai daro ne tą. Kita išeitis — debesies paslauga, kuri girdi viską, kas pasakoma
-namuose. LT_ausys tame pačiame teste — **10,6 %**, lokaliai ir greičiau už abu.
+namuose. LT_ausys tame pačiame teste — **8,3 %**, lokaliai ir greičiau už abu.
 
 **Ko reikia lietuviškai balso grandinei, diegimo eilės tvarka:**
 
@@ -86,7 +89,7 @@ print(model.recognize("komanda.wav"))      # 16 kHz mono 16 bitų WAV arba float
 
 ### B. Wyoming serveris (bet koks Linux; išbandyta Proxmox LXC konteineryje)
 
-Užtenka konteinerio ar VM su **4 branduoliais ir 4 GB RAM** (int8 viršūnė ~1,6 GB komandoms, ~2,3 GB ilgiems įrašams).
+Užtenka konteinerio ar VM su **4 branduoliais ir 4 GB RAM** (int8 viršūnė ~1,4 GB komandoms, ~1,7 GB ilgiems įrašams).
 
 ```bash
 # 1. aplinka
@@ -96,7 +99,7 @@ sudo mkdir -p /opt/lt_ausys && sudo git clone https://github.com/RobertasTa/lt-a
 cd /opt/lt_ausys
 sudo python3 -m venv venv && sudo venv/bin/pip install "onnx-asr[cpu,hub]" numpy wyoming
 
-# 2. modelis (tik int8 failai — 0,9 GB)
+# 2. modelis (tik int8 failai — 0,7 GB)
 sudo venv/bin/python3 -c "from huggingface_hub import snapshot_download as s; s('RobertasTa/lt-ausys', local_dir='model_v0', allow_patterns=['*.json','vocab.txt','*.int8.onnx'])"
 sudo ln -sfn model_v0 model
 
@@ -177,30 +180,40 @@ python tools/quantize_int8_matmul.py --model-dir model_fp32
 python tools/bench.py --engine onnx-asr --model model_fp32 --quant int8 --list test.tsv --out results/
 ```
 
+**Modeliai su kalbos užuomina** (NeMo unified ASR, pvz. Upelis — toks dabar yra LT_ausys): vietoj pirmo žingsnio
+`tools/export_nemo_prompt_to_onnx.py --nemo model.nemo --lang lt --out model_fp32 --check a.wav b.wav`. Paprastas
+`model.export()` užuominą praranda, nes ji taikoma po enkoderio; skriptas vieną kalbą įsiuva į enkoderį ir prieš
+eksportą patikrina, ar rezultatas sutampa su originalu.
+
 Du dalykai, kuriuos skriptai žino ir kurie mums kainavo dieną: NeMo >2 GB enkoderį išrašo šimtais failų po tenzorių
 (eksporto skriptas supakuoja juos į vieną `.onnx.data`), o **konvoliucijų kvantavimas kenkia** — kvantuojami tik
 `MatMul`, ir tai išlaiko tikslumą lygų fp32 bei yra greičiausias variantas ([kodėl](docs/results.md#conversion-checks)).
 
 ## Kas planuojama
 
-* **v1** — tas pats modelis, damokytas namų balso komandomis (vienas kalbėtojas, konferencinė kolonėlė, radijas
-  fone), išmatuotas tuo pačiu stendu, prieš pakeičiant v0.
 * LT_ausys ir žadinimo žodžio pakopai — išleidžiant į pensiją mažąjį Whisper, kuris dabar klauso vardo.
+
+**Istorija.** Iki 2026-11-15 LT_ausys buvo Kristijono Jakubsono kmynas v4 (Parakeet-TDT) ONNX pavidalu — jis tebėra
+pasiekiamas: Hugging Face versija `v1-kmynas`, šio repo žymė `v1.0-kmynas`. Pakeistas, nes Upelis tose pačiose namų
+komandose ir tame pačiame procesoriuje buvo tikslesnis ir naudojo mažiau atminties ([skaičiai](docs/results.md)).
 
 ## Padėkos
 
+* **Datolabs** — [`upelis-0.6b-lt-v1`](https://huggingface.co/datolabs/upelis-0.6b-lt-v1), pats modelis: NVIDIA
+  Nemotron unified ASR 0.6B, damokytas LIEPA-3 ir Common Voice, paskelbtas OpenMDW-1.1. Viskas, ką šis projektas
+  prideda, yra ONNX eksportas (su įsiūta lietuvių kalbos užuomina), suspaudimas, serveris ir matavimai; ausys — jų.
+* **NVIDIA** — [Nemotron unified ASR 0.6B](https://huggingface.co/nvidia/nemotron-labs-unified-asr-0.6b) (OpenMDW-1.1).
+* **Vytauto Didžiojo universitetas, Vilniaus universitetas ir Lietuvių kalbos institutas** — LIEPA-3 garsynas
+  (CC BY 4.0); **Mozilla** — Common Voice (CC0).
 * **Kristijonas Jakubsonas** — [`kmynas-parakeet-lt-v4`](https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4),
-  pats modelis: Parakeet-TDT 0.6B v3, damokytas LIEPA-3 garsynu, paskelbtas CC BY 4.0 su sąžininga kortele. Viskas,
-  ką šis projektas prideda, yra pakavimas, serveris ir matavimai; ausys — jo.
-* **NVIDIA** — [Parakeet-TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) (CC BY 4.0).
-* **Vilniaus universitetas / raštija.lt** — LIEPA-3 garsynas (CC BY 4.0).
+  kuris buvo LT_ausys iki 2026-11-15 (CC BY 4.0).
 * **Ilya Stupakov** — [onnx-asr](https://github.com/istupakov/onnx-asr); **Microsoft** — onnxruntime;
   **Open Home Foundation** — [Wyoming protokolas](https://github.com/OHF-Voice/wyoming).
 
 ## Licencija
 
-Šio repo kodas: **GPL-3.0** ([LICENSE](LICENSE)). Modelio failai Hugging Face'e: **CC BY 4.0**, kaip ir originalo —
-platindamas ar keisdamas nurodyk Kristijoną Jakubsoną ir pasakyk, ką pakeitei.
+Šio repo kodas: **GPL-3.0** ([LICENSE](LICENSE)). Modelio failai Hugging Face'e: **OpenMDW-1.1**, kaip ir originalo —
+platindamas palik kartu esančius `LICENSE` ir `NOTICE` failus.
 
 ---
 

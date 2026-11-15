@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """LT_ausys — Lithuanian speech-to-text served over the Wyoming protocol, on a CPU, without PyTorch or NeMo.
 
-Engine: onnx-asr + onnxruntime running a Parakeet-TDT model in the onnx-asr directory format
+Engine: onnx-asr + onnxruntime running a NeMo transducer (RNN-T or TDT) in the onnx-asr directory format
 (config.json, vocab.txt, encoder-model*.onnx, decoder_joint-model*.onnx) — e.g. RobertasTa/lt-ausys.
+The model type is read from the model's config.json, so the same server runs any onnx-asr NeMo transducer.
 
 Clients: Home Assistant's Wyoming integration (sends `describe`, expects `info`) and any Wyoming client that
 sends `transcribe` / `audio-start` / `audio-chunk`… / `audio-stop` and waits for `transcript`. Both are served.
@@ -14,6 +15,7 @@ Every utterance is logged (audio length, recognition time, text) — useful whil
 """
 import argparse
 import asyncio
+import json
 import logging
 import os
 import time
@@ -39,7 +41,9 @@ class Ears:
         so = rt.SessionOptions()
         so.intra_op_num_threads = threads
         t0 = time.perf_counter()
-        self.m = onnx_asr.load_model("nemo-conformer-tdt", model,
+        with open(os.path.join(model, "config.json"), encoding="utf-8") as f:
+            model_type = json.load(f).get("model_type", "nemo-conformer-tdt")
+        self.m = onnx_asr.load_model(model_type, model,
                                      quantization=None if quant == "fp32" else quant, sess_options=so)
         self.lock = asyncio.Lock()
         self.version = os.path.basename(os.path.realpath(model))
@@ -51,7 +55,8 @@ class Ears:
         audio = np.frombuffer(pcm16, dtype=np.int16).astype(np.float32) / 32768.0
         if audio.size == 0:
             return ""
-        return self.m.recognize(np.ascontiguousarray(audio), sample_rate=RATE).strip()
+        # "⁇" = a character the tokenizer cannot write (quotes, long dash) — drop it.
+        return self.m.recognize(np.ascontiguousarray(audio), sample_rate=RATE).replace("⁇", "").strip()
 
 
 class Handler(AsyncEventHandler):
@@ -99,11 +104,12 @@ def main() -> None:
     logging.basicConfig(level=logging.DEBUG if a.debug else logging.INFO, format="%(levelname)s %(message)s")
 
     ears = Ears(a.model, a.quant, a.threads)
-    credit = Attribution(name="Kristijonas Jakubsonas (kmynas-parakeet-lt-v4, CC BY 4.0); ONNX/int8 and server: Robertas + Claude",
+    # The model's authors and license are in its card (and NOTICE) — this credit points there, whatever model is loaded.
+    credit = Attribution(name="model authors: see the model card; ONNX/int8 and server: Robertas + Claude",
                          url="https://huggingface.co/RobertasTa/lt-ausys")
     info = Info(asr=[AsrProgram(
         name=a.name, attribution=credit, installed=True, version=ears.version,
-        description="LT_ausys — Lithuanian ears (Parakeet-TDT 0.6B, onnx-asr, CPU)",
+        description="LT_ausys — Lithuanian ears (NeMo transducer, onnx-asr, CPU)",
         models=[AsrModel(name=f"{a.name}-{ears.version}", attribution=credit, installed=True, version=ears.version,
                          description=f"{ears.version}, {a.quant}", languages=["lt"])])])
     _LOG.info("listening on %s", a.uri)

@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google-site-verification" content="ngCuEME8a9C8od6O7mw1EHMId6BzZqJE9-xi-NIyy-Y" />
 <title>Lithuanian Speech to Text for Home Assistant — LT_ausys</title>
-<meta name="description" content="Free, offline Lithuanian speech recognition (ASR) for Home Assistant and Wyoming: a voice command in 0.2 s on a plain CPU, no GPU, no cloud. Parakeet-TDT in ONNX/int8.">
+<meta name="description" content="Free, offline Lithuanian speech recognition (ASR) for Home Assistant and Wyoming: a voice command in 0.2 s on a plain CPU, no GPU, no cloud. A Lithuanian transducer model in ONNX/int8.">
 <link rel="canonical" href="https://robertasta.github.io/lt-ausys/en/">
 <meta property="og:title" content="LT_ausys — Lithuanian speech to text for Home Assistant">
-<meta property="og:description" content="Lithuanian ears for a voice assistant: 0.2 s per command on a CPU, no cloud. Kristijonas Jakubsonas's kmynas model in ONNX/int8 with a Wyoming server.">
+<meta property="og:description" content="Lithuanian ears for a voice assistant: 0.2 s per command on a CPU, no cloud. Datolabs' Upelis model in ONNX/int8 with a Wyoming server.">
 <meta property="og:image" content="https://robertasta.github.io/lt-ausys/banner.png">
 <meta property="og:url" content="https://robertasta.github.io/lt-ausys/en/">
 <meta property="og:type" content="website">
@@ -22,24 +22,24 @@
   "@type": "SoftwareSourceCode",
   "name": "LT_ausys",
   "alternateName": "lt-ausys",
-  "description": "Lithuanian speech-to-text for Home Assistant and the Wyoming protocol: the kmynas v4 Parakeet-TDT model in ONNX/int8, running offline on a CPU.",
+  "description": "Lithuanian speech-to-text for Home Assistant and the Wyoming protocol: Datolabs' Upelis (Nemotron 0.6B) model in ONNX/int8, running offline on a CPU.",
   "url": "https://robertasta.github.io/lt-ausys/en/",
   "codeRepository": "https://github.com/RobertasTa/lt-ausys",
   "programmingLanguage": "Python",
   "runtimePlatform": "Linux, onnxruntime",
   "inLanguage": "en",
   "license": "https://www.gnu.org/licenses/gpl-3.0.html",
-  "keywords": "Lithuanian speech to text, Lithuanian speech recognition, Lithuanian ASR, Home Assistant Lithuanian, Wyoming STT, Parakeet, ONNX, offline, CPU",
+  "keywords": "Lithuanian speech to text, Lithuanian speech recognition, Lithuanian ASR, Home Assistant Lithuanian, Wyoming STT, Nemotron, ONNX, offline, CPU",
   "author": [
     {"@type": "Person", "name": "Robertas Tarasevičius"},
     {"@type": "Organization", "name": "Claude (Anthropic)"}
   ],
   "isBasedOn": {
     "@type": "CreativeWork",
-    "name": "kmynas-parakeet-lt-v4",
-    "url": "https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4",
-    "author": {"@type": "Person", "name": "Kristijonas Jakubsonas"},
-    "license": "https://creativecommons.org/licenses/by/4.0/"
+    "name": "upelis-0.6b-lt-v1",
+    "url": "https://huggingface.co/datolabs/upelis-0.6b-lt-v1",
+    "author": {"@type": "Organization", "name": "Datolabs"},
+    "license": "https://huggingface.co/datolabs/upelis-0.6b-lt-v1/blob/main/LICENSE"
   },
   "sameAs": [
     "https://github.com/RobertasTa/lt-ausys",
@@ -122,34 +122,35 @@
   <h2>Offline Lithuanian speech recognition, at home</h2>
   <p>A voice assistant needs a mouth and ears. The ears are speech-to-text (STT, also called ASR): they hear
   <i>“Įjunk šviesą svetainėje”</i> (“turn on the living-room light”) and turn it into text Home Assistant can act on.
-  LT_ausys is <b>Kristijonas Jakubsonas</b>'s Lithuanian model, which we converted to ONNX and compressed so it runs
+  LT_ausys is <b>Datolabs</b>' Lithuanian model Upelis, which we converted to ONNX and compressed so it runs
   fast on a CPU with no GPU, served over the Wyoming protocol — the same one Home Assistant uses for its own voice
   services.</p>
   <div class="grid" style="margin-top:22px">
-    <div class="card"><h3>Fast</h3><p>A voice command is recognised in 0.21 s. Whisper-family models (Paprika included) take 3.55 s on the same mini PC: they encode a 30-second window for every phrase, however short.</p></div>
-    <div class="card"><h3>No GPU</h3><p>Four CPU cores and 4 GB of RAM are enough — a mini PC or a Proxmox container. The compressed (int8) model is 0.9 GB.</p></div>
-    <div class="card"><h3>More accurate</h3><p>On read speech (FLEURS) it gets 10.6 % of words wrong; Paprika 12.0 %. Home Assistant's default Whisper <i>base</i> gets 88 % wrong in Lithuanian.</p></div>
+    <div class="card"><h3>Fast</h3><p>A voice command is recognised in 0.18 s. Whisper-family models (Paprika included) take 3.55 s on the same mini PC: they encode a 30-second window for every phrase, however short.</p></div>
+    <div class="card"><h3>No GPU</h3><p>Four CPU cores and 4 GB of RAM are enough — a mini PC or a Proxmox container. The compressed (int8) model is 0.7 GB.</p></div>
+    <div class="card"><h3>More accurate</h3><p>On read speech (FLEURS) it gets 8.3 % of words wrong; Paprika 12.0 %. Home Assistant's default Whisper <i>base</i> gets 88 % wrong in Lithuanian.</p></div>
     <div class="card"><h3>No cloud</h3><p>Everything runs on your own computer or home server. No account, no API key, no subscription. What is said at home stays at home.</p></div>
-    <div class="card"><h3>Writes like a person</h3><p>The output is normal written Lithuanian: punctuation, capital letters and numbers spelled out as words.</p></div>
-    <div class="card"><h3>Free to use</h3><p>The model is CC BY 4.0, like the original: commercial use is allowed with credit to Kristijonas Jakubsonas. The server and tools are GPL-3.0.</p></div>
+    <div class="card"><h3>Writes like a person</h3><p>The output is normal written Lithuanian: punctuation, capital letters, numbers from 10 up as digits.</p></div>
+    <div class="card"><h3>Free to use</h3><p>The model is OpenMDW-1.1, like the original: commercial use is allowed; keep its LICENSE and NOTICE files when you share it. The server and tools are GPL-3.0.</p></div>
   </div>
 </section>
 
 <section class="wrap">
   <h2>Why not Whisper</h2>
   <p>Whisper is the most popular open speech-recognition model, but it encodes a fixed 30-second window for every
-  phrase, however short. On a CPU that is a cost of several seconds per command. LT_ausys is built on NVIDIA's
-  Parakeet-TDT transducer, which processes only as much audio as it is given. Same machine (Ryzen 7 8845HS mini PC,
+  phrase, however short. On a CPU that is a cost of several seconds per command. LT_ausys is a transducer (NVIDIA
+  Nemotron, fine-tuned for Lithuanian by Datolabs), which processes only as much audio as it is given. Same machine (Ryzen 7 8845HS mini PC,
   4 threads), same 127 home commands:</p>
   <div class="lentele">
   <table>
     <tr><th></th><th>per command</th><th>FLEURS word error rate</th><th>command intent exam</th></tr>
-    <tr class="mes"><td>LT_ausys (int8)</td><td class="sk">0.21 s</td><td class="sk">10.6 %</td><td class="sk">101 / 119</td></tr>
+    <tr class="mes"><td>LT_ausys (int8)</td><td class="sk">0.18 s</td><td class="sk">8.3 %</td><td class="sk">103 / 119</td></tr>
+    <tr><td>LT_ausys until 2026-11-15 (kmynas)</td><td class="sk">0.21 s</td><td class="sk">10.6 %</td><td class="sk">101 / 119</td></tr>
     <tr><td>Paprika (Whisper large-v3-turbo)</td><td class="sk">3.55 s</td><td class="sk">12.0 %</td><td class="sk">93 / 119</td></tr>
     <tr><td>faster-whisper tiny</td><td class="sk">0.73 s</td><td class="sk">99 %</td><td class="sk">17 / 119</td></tr>
   </table>
   </div>
-  <p class="pastaba">Measured on 2026-10-24 on one machine. Full tables, test sets and caveats:
+  <p class="pastaba">Measured on 2026-11-15 (the previous version and Whisper models on 2026-10-24) on one machine. Full tables, test sets and caveats:
   <a href="https://github.com/RobertasTa/lt-ausys/blob/main/docs/results.md">docs/results.md</a>.</p>
   <p>The general <b>Whisper large-v3</b>, not fine-tuned for Lithuanian (2026-11-03, same sentences and commands, on a GPU),
   gets <b>24.2 %</b> of FLEURS words and <b>49.5 %</b> of command words wrong — two to three times as often as LT_ausys. It
@@ -201,13 +202,14 @@ print(model.recognize("command.wav"))   # 16 kHz mono WAV</code></pre>
 <section class="wrap">
   <h2>Whose model this is</h2>
   <div class="autorius">
-    <p><b>The ears are Kristijonas Jakubsonas's.</b> His model
-    <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4"><b>kmynas-parakeet-lt-v4</b></a> is NVIDIA
-    Parakeet-TDT 0.6B v3 fine-tuned on 3,087 hours of Lithuanian speech from Vilnius University's LIEPA-3 corpus,
-    published under CC BY 4.0 with an honest model card.</p>
-    <p>We (Robertas and Claude) added only the packaging: conversion to ONNX, int8 compression that keeps the
-    accuracy, a Wyoming server, measurements and install guides. If you use or redistribute the model, credit
-    Kristijonas Jakubsonas and say what you changed.</p>
+    <p><b>The ears are Datolabs'.</b> Their model
+    <a href="https://huggingface.co/datolabs/upelis-0.6b-lt-v1"><b>upelis-0.6b-lt-v1</b></a> is NVIDIA's Nemotron
+    unified ASR 0.6B fine-tuned on Lithuanian speech (LIEPA-3 and Common Voice), published under OpenMDW-1.1.</p>
+    <p>We (Robertas and Claude) added the packaging: conversion to ONNX with the Lithuanian language prompt built
+    in, int8 compression that keeps the accuracy, a Wyoming server, measurements and install guides. If you
+    redistribute the model, keep its LICENSE and NOTICE files.</p>
+    <p>Until 2026-11-15 LT_ausys was <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4">kmynas-parakeet-lt-v4</a>
+    by Kristijonas Jakubsonas (CC BY 4.0); it is still available as revision <code>v1-kmynas</code> on Hugging Face.</p>
   </div>
 </section>
 
@@ -228,18 +230,18 @@ print(model.recognize("command.wav"))   # 16 kHz mono WAV</code></pre>
   <dl class="duk">
     <dt>Can Home Assistant understand Lithuanian?</dt>
     <dd>Yes. Home Assistant already has Lithuanian commands; what was missing is good speech recognition. The
-    default Whisper <i>base</i> gets 88 % of Lithuanian words wrong, LT_ausys 10.6 %.</dd>
+    default Whisper <i>base</i> gets 88 % of Lithuanian words wrong, LT_ausys 8.3 %.</dd>
     <dt>Does it need the internet or a GPU?</dt>
     <dd>No. The model runs on a CPU (4 cores, 4 GB of RAM) and no audio leaves your network.</dd>
     <dt>How is it different from Paprika?</dt>
-    <dd>Paprika is also Kristijonas Jakubsonas's model, but a Whisper one: accurate, yet several seconds per
-    command on a CPU. LT_ausys is a different kind of model (Parakeet) and more than 15 times faster.</dd>
+    <dd>Paprika is Kristijonas Jakubsonas's Whisper model: accurate, yet several seconds per
+    command on a CPU. LT_ausys is a different kind of model (a transducer) and more than 15 times faster.</dd>
     <dt>Can I dictate Lithuanian on a phone?</dt>
-    <dd>Yes, on Android and offline: the same ears work in the Parakeetype voice keyboard, and the text appears in
-    any app. On the FLEURS test the keyboard makes 10.6% word errors with these ears and 27.1% with its default
-    model. How to install — on the <a href="https://robertasta.github.io/android-lt/en/">Android LT page</a>.</dd>
+    <dd>Yes, on Android and offline: the previous LT_ausys ears (kmynas) work in the Parakeetype voice keyboard, and
+    the text appears in any app. On the FLEURS test the keyboard makes 10.6% word errors with them and 27.1% with its
+    default model. How to install — on the <a href="https://robertasta.github.io/android-lt/en/">Android LT page</a>.</dd>
     <dt>Can I use it in a commercial product?</dt>
-    <dd>The model's CC BY 4.0 licence allows it with attribution. Read the licences before you ship it.</dd>
+    <dd>The model's OpenMDW-1.1 licence allows it; keep its LICENSE and NOTICE files. Read the licences before you ship it.</dd>
   </dl>
 </section>
 
@@ -256,8 +258,10 @@ print(model.recognize("command.wav"))   # 16 kHz mono WAV</code></pre>
 
 <section class="wrap padekos">
   <h2>Thanks</h2>
-  <p><b>Kristijonas Jakubsonas</b> — for the model itself. <b>NVIDIA</b> — for Parakeet-TDT 0.6B v3 (CC BY 4.0).
-  <b>Vilnius University and raštija.lt</b> — for the LIEPA-3 corpus (CC BY 4.0). <b>Ilya Stupakov</b> — for
+  <p><b>Datolabs</b> — for the model itself. <b>NVIDIA</b> — for Nemotron unified ASR 0.6B (OpenMDW-1.1).
+  <b>Vytautas Magnus University, Vilnius University and the Institute of the Lithuanian Language</b> — for the
+  LIEPA-3 corpus (CC BY 4.0); <b>Mozilla</b> — for Common Voice. <b>Kristijonas Jakubsonas</b> — for kmynas, the
+  LT_ausys ears until 2026-11-15. <b>Ilya Stupakov</b> — for
   onnx-asr, <b>Microsoft</b> — for onnxruntime, <b>Open Home Foundation</b> — for the Wyoming protocol.</p>
   <p>No institution sponsors this project. Full credits with licences are
   <a href="https://github.com/RobertasTa/lt-ausys#credits">at the end of the README</a>.</p>
@@ -266,9 +270,9 @@ print(model.recognize("command.wav"))   # 16 kHz mono WAV</code></pre>
 <footer class="wrap">
   <p><a href="https://github.com/RobertasTa/lt-ausys">GitHub</a> ·
      <a href="https://huggingface.co/RobertasTa/lt-ausys">Hugging Face</a> ·
-     <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4">Original model</a> ·
+     <a href="https://huggingface.co/datolabs/upelis-0.6b-lt-v1">Original model</a> ·
      <a href="https://github.com/RobertasTa/lt-ausys/blob/main/LICENSE">Code GPL v3</a> ·
-     <a href="https://creativecommons.org/licenses/by/4.0/">Model CC BY 4.0</a></p>
+     <a href="https://huggingface.co/RobertasTa/lt-ausys/blob/main/LICENSE">Model OpenMDW-1.1</a></p>
   <p>Part of <a href="https://robertasta.github.io/">Claude's Gifts to the World</a> — free, open-source gifts.</p>
   <p class="sig">A gift from Claude and Robertas</p>
   <p class="di">Banner illustration made with AI.</p>

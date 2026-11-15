@@ -8,7 +8,7 @@
 <meta name="description" content="Nemokamas lietuvių kalbos atpažinimas (šneka į tekstą) Home Assistant ir Wyoming: balso komanda atpažįstama per 0,2 s ant paprasto procesoriaus, be vaizdo plokštės ir be interneto.">
 <link rel="canonical" href="https://robertasta.github.io/lt-ausys/">
 <meta property="og:title" content="LT_ausys — lietuviškas balso atpažinimas Home Assistant'ui">
-<meta property="og:description" content="Lietuviškos ausys balso asistentui: 0,2 s komandai ant procesoriaus, be debesies. Kristijono Jakubsono kmynas modelis ONNX/int8 formatu su Wyoming serveriu.">
+<meta property="og:description" content="Lietuviškos ausys balso asistentui: 0,2 s komandai ant procesoriaus, be debesies. Datolabs modelis Upelis ONNX/int8 formatu su Wyoming serveriu.">
 <meta property="og:image" content="https://robertasta.github.io/lt-ausys/banner.png">
 <meta property="og:url" content="https://robertasta.github.io/lt-ausys/">
 <meta property="og:type" content="website">
@@ -22,24 +22,24 @@
   "@type": "SoftwareSourceCode",
   "name": "LT_ausys",
   "alternateName": "lt-ausys",
-  "description": "Lietuvių kalbos atpažinimas (speech to text) Home Assistant ir Wyoming protokolui: Parakeet-TDT modelis kmynas v4 ONNX/int8 formatu, veikia ant procesoriaus be interneto.",
+  "description": "Lietuvių kalbos atpažinimas (speech to text) Home Assistant ir Wyoming protokolui: Datolabs modelis Upelis (Nemotron 0.6B) ONNX/int8 formatu, veikia ant procesoriaus be interneto.",
   "url": "https://robertasta.github.io/lt-ausys/",
   "codeRepository": "https://github.com/RobertasTa/lt-ausys",
   "programmingLanguage": "Python",
   "runtimePlatform": "Linux, onnxruntime",
   "inLanguage": "lt",
   "license": "https://www.gnu.org/licenses/gpl-3.0.html",
-  "keywords": "lietuviškas balso atpažinimas, kalbos atpažinimas lietuvių kalba, Home Assistant lietuviškai, Lithuanian speech to text, Lithuanian ASR, Wyoming STT, Parakeet, ONNX, offline",
+  "keywords": "lietuviškas balso atpažinimas, kalbos atpažinimas lietuvių kalba, Home Assistant lietuviškai, Lithuanian speech to text, Lithuanian ASR, Wyoming STT, Nemotron, ONNX, offline",
   "author": [
     {"@type": "Person", "name": "Robertas Tarasevičius"},
     {"@type": "Organization", "name": "Claude (Anthropic)"}
   ],
   "isBasedOn": {
     "@type": "CreativeWork",
-    "name": "kmynas-parakeet-lt-v4",
-    "url": "https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4",
-    "author": {"@type": "Person", "name": "Kristijonas Jakubsonas"},
-    "license": "https://creativecommons.org/licenses/by/4.0/"
+    "name": "upelis-0.6b-lt-v1",
+    "url": "https://huggingface.co/datolabs/upelis-0.6b-lt-v1",
+    "author": {"@type": "Organization", "name": "Datolabs"},
+    "license": "https://huggingface.co/datolabs/upelis-0.6b-lt-v1/blob/main/LICENSE"
   },
   "sameAs": [
     "https://github.com/RobertasTa/lt-ausys",
@@ -123,16 +123,16 @@
   <h2>Kalbos atpažinimas lietuvių kalba — namie, be debesies</h2>
   <p>Balso asistentui reikia burnos ir ausų. Ausys — tai kalbos atpažinimas (angl. <i>speech to text</i>, STT):
   jos išgirsta <i>„Įjunk šviesą svetainėje“</i> ir paverčia tekstu, kurį Home Assistant supranta. LT_ausys yra
-  <b>Kristijono Jakubsono</b> lietuviškas modelis, mūsų perkeltas į ONNX ir suspaustas, kad sparčiai veiktų ant
+  <b>Datolabs</b> lietuviškas modelis Upelis, mūsų perkeltas į ONNX ir suspaustas, kad sparčiai veiktų ant
   procesoriaus, be vaizdo plokštės, ir paduodamas per Wyoming protokolą — tą patį, kuriuo Home Assistant jungia
   savo balso tarnybas.</p>
   <div class="grid" style="margin-top:22px">
-    <div class="card"><h3>Žaibiškai</h3><p>Balso komandą atpažįsta per 0,21 s. Whisper šeimos modeliai (ir Paprika) tame pačiame mini PC užtrunka 3,55 s: jie kiekvienai, net trumpiausiai frazei koduoja 30 sekundžių langą.</p></div>
-    <div class="card"><h3>Be vaizdo plokštės</h3><p>Užtenka 4 procesoriaus branduolių ir 4 GB atminties — mini PC ar Proxmox konteinerio. Suspaustas (int8) modelis — 0,9 GB.</p></div>
-    <div class="card"><h3>Tiksliau</h3><p>Skaitomoje kalboje (FLEURS) klysta 10,6 % žodžių, Paprika — 12,0 %. Home Assistant numatytasis Whisper <i>base</i> lietuviškai — 88 %.</p></div>
+    <div class="card"><h3>Žaibiškai</h3><p>Balso komandą atpažįsta per 0,18 s. Whisper šeimos modeliai (ir Paprika) tame pačiame mini PC užtrunka 3,55 s: jie kiekvienai, net trumpiausiai frazei koduoja 30 sekundžių langą.</p></div>
+    <div class="card"><h3>Be vaizdo plokštės</h3><p>Užtenka 4 procesoriaus branduolių ir 4 GB atminties — mini PC ar Proxmox konteinerio. Suspaustas (int8) modelis — 0,7 GB.</p></div>
+    <div class="card"><h3>Tiksliau</h3><p>Skaitomoje kalboje (FLEURS) klysta 8,3 % žodžių, Paprika — 12,0 %. Home Assistant numatytasis Whisper <i>base</i> lietuviškai — 88 %.</p></div>
     <div class="card"><h3>Be interneto</h3><p>Viskas sukasi jūsų kompiuteryje ar namų serveryje. Jokios paskyros, jokio API rakto, jokio mėnesinio mokesčio. Tai, kas pasakyta namuose, niekur neišeina.</p></div>
-    <div class="card"><h3>Rašo kaip žmogus</h3><p>Išvestis — normali rašytinė lietuvių kalba: su skyryba, didžiosiomis raidėmis ir skaičiais žodžiais (<i>„Įjunk šviesą svetainėje dvidešimt procentų.“</i>).</p></div>
-    <div class="card"><h3>Laisva naudoti</h3><p>Modelis — CC BY 4.0, kaip ir originalas: galima naudoti ir komerciškai, nurodant Kristijoną Jakubsoną. Serverio ir įrankių kodas — GPL-3.0.</p></div>
+    <div class="card"><h3>Rašo kaip žmogus</h3><p>Išvestis — normali rašytinė lietuvių kalba: su skyryba, didžiosiomis raidėmis, skaičiai nuo 10 — skaitmenimis (<i>„Įjunk šviesą svetainėje 20 procentų.“</i>).</p></div>
+    <div class="card"><h3>Laisva naudoti</h3><p>Modelis — OpenMDW-1.1, kaip ir originalas: galima naudoti ir komerciškai; platindami palikite jo LICENSE ir NOTICE failus. Serverio ir įrankių kodas — GPL-3.0.</p></div>
   </div>
 </section>
 
@@ -140,17 +140,18 @@
   <h2>Kodėl ne Whisper</h2>
   <p>Whisper — populiariausias atviras kalbos atpažinimo modelis, bet kiekvienai frazei, kad ir kokiai trumpai,
   jis koduoja fiksuotą 30 sekundžių langą. Ant procesoriaus tai kelių sekundžių kaina kiekvienai komandai.
-  LT_ausys pagrindas — NVIDIA Parakeet-TDT transduseris, kuris apdoroja tik tiek garso, kiek jam paduota.
+  LT_ausys — transduseris (NVIDIA Nemotron, Datolabs damokytas lietuviškai), kuris apdoroja tik tiek garso, kiek jam paduota.
   Ta pati mašina (Ryzen 7 8845HS mini PC, 4 gijos), tos pačios 127 namų komandos:</p>
   <div class="lentele">
   <table>
     <tr><th></th><th>komandai</th><th>FLEURS žodžių klaidos</th><th>komandų ketinimo egzaminas</th></tr>
-    <tr class="mes"><td>LT_ausys (int8)</td><td class="sk">0,21 s</td><td class="sk">10,6 %</td><td class="sk">101 / 119</td></tr>
+    <tr class="mes"><td>LT_ausys (int8)</td><td class="sk">0,18 s</td><td class="sk">8,3 %</td><td class="sk">103 / 119</td></tr>
+    <tr><td>LT_ausys iki 2026-11-15 (kmynas)</td><td class="sk">0,21 s</td><td class="sk">10,6 %</td><td class="sk">101 / 119</td></tr>
     <tr><td>Paprika (Whisper large-v3-turbo)</td><td class="sk">3,55 s</td><td class="sk">12,0 %</td><td class="sk">93 / 119</td></tr>
     <tr><td>faster-whisper tiny</td><td class="sk">0,73 s</td><td class="sk">99 %</td><td class="sk">17 / 119</td></tr>
   </table>
   </div>
-  <p class="pastaba">Išmatuota 2026-10-24 vienoje mašinoje. Pilnos lentelės, testų rinkiniai ir išlygos —
+  <p class="pastaba">Išmatuota 2026-11-15 (ankstesnė versija ir Whisper modeliai — 2026-10-24) vienoje mašinoje. Pilnos lentelės, testų rinkiniai ir išlygos —
   <a href="https://github.com/RobertasTa/lt-ausys/blob/main/docs/results.md">docs/results.md</a>.</p>
   <p>O bendras, lietuviškai nedamokytas <b>Whisper large-v3</b> (2026-11-03, tie patys sakiniai ir komandos, vaizdo plokštėje)
   klysta <b>24,2 %</b> FLEURS žodžių ir <b>49,5 %</b> komandų žodžių — 2–3 kartus dažniau nei LT_ausys. Raides jis dažniausiai
@@ -202,13 +203,15 @@ print(model.recognize("komanda.wav"))   # 16 kHz mono WAV</code></pre>
 <section class="wrap">
   <h2>Kieno tai modelis</h2>
   <div class="autorius">
-    <p><b>Ausys — Kristijono Jakubsono.</b> Modelis
-    <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4"><b>kmynas-parakeet-lt-v4</b></a> — tai NVIDIA
-    Parakeet-TDT 0.6B v3, jo damokytas 3 087 valandomis lietuviškos kalbos iš Vilniaus universiteto LIEPA-3 garsyno
-    ir paskelbtas CC BY 4.0 licencija su sąžininga kortele.</p>
-    <p>Mes (Robertas ir Claude) pridėjome tik pakavimą: perkėlimą į ONNX, suspaudimą į int8 taip, kad nenukentėtų
-    tikslumas, Wyoming serverį, matavimus ir diegimo gidus. Jei naudojate ar platinate modelį — nurodykite Kristijoną
-    Jakubsoną ir pasakykite, ką pakeitėte.</p>
+    <p><b>Ausys — Datolabs.</b> Jų modelis
+    <a href="https://huggingface.co/datolabs/upelis-0.6b-lt-v1"><b>upelis-0.6b-lt-v1</b></a> — tai NVIDIA Nemotron
+    unified ASR 0.6B, damokytas lietuviška kalba (LIEPA-3 ir Common Voice) ir paskelbtas OpenMDW-1.1 licencija.</p>
+    <p>Mes (Robertas ir Claude) pridėjome pakavimą: perkėlimą į ONNX su įmontuotu lietuvių kalbos raktu, suspaudimą
+    į int8 taip, kad nenukentėtų tikslumas, Wyoming serverį, matavimus ir diegimo gidus. Jei platinate modelį —
+    palikite jo LICENSE ir NOTICE failus.</p>
+    <p>Iki 2026-11-15 LT_ausys buvo Kristijono Jakubsono
+    <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4">kmynas-parakeet-lt-v4</a> (CC BY 4.0); ta
+    versija tebėra Hugging Face revizijoje <code>v1-kmynas</code>.</p>
   </div>
 </section>
 
@@ -229,18 +232,18 @@ print(model.recognize("komanda.wav"))   # 16 kHz mono WAV</code></pre>
   <dl class="duk">
     <dt>Ar Home Assistant gali suprasti lietuviškai?</dt>
     <dd>Taip. Lietuviškos komandos Home Assistant jau yra; trūksta gero kalbos atpažinimo. Numatytasis Whisper
-    <i>base</i> lietuviškai klysta 88 % žodžių, LT_ausys — 10,6 %.</dd>
+    <i>base</i> lietuviškai klysta 88 % žodžių, LT_ausys — 8,3 %.</dd>
     <dt>Ar reikia interneto ar vaizdo plokštės?</dt>
     <dd>Ne. Modelis veikia ant procesoriaus (4 branduoliai, 4 GB atminties), o garsas niekur nesiunčiamas.</dd>
     <dt>Kuo tai skiriasi nuo Paprikos?</dt>
-    <dd>Paprika — taip pat Kristijono Jakubsono modelis, bet Whisper tipo; jis tikslus, tačiau ant procesoriaus
-    komandai užtrunka kelias sekundes. LT_ausys — kito tipo (Parakeet) ir greitesnis daugiau nei 15 kartų.</dd>
+    <dd>Paprika — Kristijono Jakubsono Whisper tipo modelis; jis tikslus, tačiau ant procesoriaus
+    komandai užtrunka kelias sekundes. LT_ausys — kito tipo (transduseris) ir greitesnis daugiau nei 15 kartų.</dd>
     <dt>Ar galima diktuoti lietuviškai telefone?</dt>
-    <dd>Taip, Android telefone ir be interneto: tos pačios ausys veikia balso klaviatūroje Parakeetype, o tekstas
-    atsiranda bet kurioje programoje. FLEURS teste klaviatūra su šiomis ausimis klysta 10,6 % žodžių, su savo
+    <dd>Taip, Android telefone ir be interneto: ankstesnės LT_ausys ausys (kmynas) veikia balso klaviatūroje
+    Parakeetype, o tekstas atsiranda bet kurioje programoje. FLEURS teste klaviatūra su jomis klysta 10,6 % žodžių, su savo
     numatytuoju modeliu — 27,1 %. Kaip įdiegti — <a href="https://robertasta.github.io/android-lt/">Android LT puslapyje</a>.</dd>
     <dt>Ar galima naudoti komerciniame produkte?</dt>
-    <dd>Modelio licencija CC BY 4.0 tai leidžia, jei nurodote autorių. Prieš dėdami į produktą, perskaitykite
+    <dd>Modelio licencija OpenMDW-1.1 tai leidžia; palikite jo LICENSE ir NOTICE failus. Prieš dėdami į produktą, perskaitykite
     licencijas.</dd>
   </dl>
 </section>
@@ -258,8 +261,10 @@ print(model.recognize("komanda.wav"))   # 16 kHz mono WAV</code></pre>
 
 <section class="wrap padekos">
   <h2>Ačiū</h2>
-  <p><b>Kristijonui Jakubsonui</b> — už patį modelį. <b>NVIDIA</b> — už Parakeet-TDT 0.6B v3 (CC BY 4.0).
-  <b>Vilniaus universitetui ir raštija.lt</b> — už LIEPA-3 garsyną (CC BY 4.0). <b>Ilya Stupakovui</b> — už
+  <p><b>Datolabs</b> — už patį modelį. <b>NVIDIA</b> — už Nemotron unified ASR 0.6B (OpenMDW-1.1).
+  <b>Vytauto Didžiojo universitetui, Vilniaus universitetui ir Lietuvių kalbos institutui</b> — už LIEPA-3 garsyną
+  (CC BY 4.0); <b>Mozilla</b> — už Common Voice. <b>Kristijonui Jakubsonui</b> — už kmyną, LT_ausys ausis iki
+  2026-11-15. <b>Ilya Stupakovui</b> — už
   onnx-asr, <b>Microsoft</b> — už onnxruntime, <b>Open Home Foundation</b> — už Wyoming protokolą.</p>
   <p>Nė viena įstaiga šio projekto neremia. Pilnos padėkos su licencijomis —
   <a href="https://github.com/RobertasTa/lt-ausys/blob/main/README_lt.md#padėkos">README pabaigoje</a>.</p>
@@ -268,9 +273,9 @@ print(model.recognize("komanda.wav"))   # 16 kHz mono WAV</code></pre>
 <footer class="wrap">
   <p><a href="https://github.com/RobertasTa/lt-ausys">GitHub</a> ·
      <a href="https://huggingface.co/RobertasTa/lt-ausys">Hugging Face</a> ·
-     <a href="https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4">Originalus modelis</a> ·
+     <a href="https://huggingface.co/datolabs/upelis-0.6b-lt-v1">Originalus modelis</a> ·
      <a href="https://github.com/RobertasTa/lt-ausys/blob/main/LICENSE">Kodas GPL v3</a> ·
-     <a href="https://creativecommons.org/licenses/by/4.0/deed.lt">Modelis CC BY 4.0</a></p>
+     <a href="https://huggingface.co/RobertasTa/lt-ausys/blob/main/LICENSE">Modelis OpenMDW-1.1</a></p>
   <p>Dalis <a href="https://robertasta.github.io/">Claude's Gifts to the World</a> — nemokamų atviro kodo dovanų.</p>
   <p class="sig">Dovana nuo Claude ir Roberto</p>
   <p class="di">Banerio iliustracija sukurta naudojant DI.</p>

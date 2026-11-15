@@ -3,18 +3,19 @@
 ![LT_ausys — a robotic hand holds a gift box labelled lt-ausys under a glowing globe; logos of the LIEPA-3 corpus institutions in the corner (illustration created with AI)](docs/banner.png)
 
 **Lithuanian speech-to-text that runs on a small CPU, fast enough for a voice assistant: 0.2 s per command instead
-of 3.5 s.** A Parakeet-TDT model fine-tuned on 3 087 hours of Lithuanian, exported to ONNX and quantized, served over
-the Wyoming protocol — no GPU, no PyTorch, nothing leaves your house.
+of 3.5 s.** A transducer model fine-tuned on Lithuanian ([Upelis](https://huggingface.co/datolabs/upelis-0.6b-lt-v1)
+by Datolabs), exported to ONNX and quantized, served over the Wyoming protocol — no GPU, no PyTorch, nothing leaves
+your house.
 
 🌐 **English** · [Lietuvių](README_lt.md) · [Русский](README_ru.md)
 
 > ℹ️ Made with AI: the conversion, the server, the measurements and these texts were made by Claude (Anthropic)
-> together with Robertas and tested on real hardware. The model itself is Kristijonas Jakubsonas's — see
-> [Credits](#credits).
+> together with Robertas and tested on real hardware. The model itself is Datolabs' Upelis (since 2026-11-15; until
+> then it was Kristijonas Jakubsonas's kmynas) — see [Credits](#credits).
 
-> Measured on 2026-10-24 on a Ryzen 7 8845HS mini PC (4 threads, Proxmox LXC): a 2–6 s voice command is transcribed
-> in **0.21 s** (Whisper large-v3-turbo / Paprika on the same CPU: 3.55 s), FLEURS Lithuanian WER **10.6 %**
-> (Paprika 12.0 %). Running since that evening as the ears of a home voice assistant.
+> Measured on 2026-11-15 on a Ryzen 7 8845HS mini PC (4 threads, Proxmox LXC): a 2–6 s voice command is transcribed
+> in **0.18 s** (Whisper large-v3-turbo / Paprika on the same CPU: 3.55 s), FLEURS Lithuanian WER **8.3 %**
+> (Paprika 12.0 %). The previous version has been the ears of a home voice assistant since 2026-10-24.
 
 ---
 
@@ -22,23 +23,24 @@ the Wyoming protocol — no GPU, no PyTorch, nothing leaves your house.
 
 | | |
 |---|---|
-| **Model** | [`RobertasTa/lt-ausys`](https://huggingface.co/RobertasTa/lt-ausys) on Hugging Face — fp32 (2.5 GB) and int8 (0.9 GB), in the [onnx-asr](https://github.com/istupakov/onnx-asr) directory format. CC BY 4.0. |
+| **Model** | [`RobertasTa/lt-ausys`](https://huggingface.co/RobertasTa/lt-ausys) on Hugging Face — fp32 (2.5 GB) and int8 (0.7 GB), in the [onnx-asr](https://github.com/istupakov/onnx-asr) directory format. OpenMDW-1.1 (keep `LICENSE` and `NOTICE`). |
 | **Server** | [`server/lt_ausys_server.py`](server/lt_ausys_server.py) — a Wyoming speech-to-text server (~120 lines) + a systemd unit. Home Assistant finds it as a Wyoming integration. |
-| **Recipe** | [`tools/`](tools/) — export any NeMo Parakeet checkpoint to ONNX, quantize it the way that does not hurt, measure it. |
+| **Recipe** | [`tools/`](tools/) — export a NeMo transducer checkpoint to ONNX (Parakeet, or a language-prompt model like Upelis), quantize it the way that does not hurt, measure it. |
 | **Numbers** | [`docs/results.md`](docs/results.md) — three test sets, four models, one machine. |
 
-Output is normal written Lithuanian: punctuation, capitals, numbers as words (*„Įjunk šviesą svetainėje dvidešimt
-procentų."*).
+Output is normal written Lithuanian: punctuation, capitals; numbers from 10 up as digits, 1–9 as words
+(*„Įjunk šviesą svetainėje 20 procentų."*).
 
 ## Why not Whisper
 
 Whisper-family models encode a fixed **30-second window** for every utterance, however short. On a CPU that is a
-flat cost of seconds per command, and no quantization removes it. A transducer (Parakeet-TDT) processes only the
+flat cost of seconds per command, and no quantization removes it. A transducer (RNN-T / TDT) processes only the
 audio it is given. Same machine, same 127 home commands:
 
 | | per command | FLEURS WER | command-intent exam |
 |---|---|---|---|
-| **LT_ausys v0 int8** | **0.21 s** | **10.6 %** | **101 / 119** |
+| **LT_ausys int8** | **0.18 s** | **8.3 %** | **103 / 119** |
+| LT_ausys until 2026-11-15 (kmynas, int8) | 0.21 s | 10.6 % | 101 / 119 |
 | Paprika (Whisper large-v3-turbo, CT2 int8) | 3.55 s | 12.0 % | 93 / 119 |
 | faster-whisper tiny int8 | 0.73 s | 99 % | 17 / 119 |
 
@@ -50,7 +52,7 @@ Full tables, test sets and caveats: [docs/results.md](docs/results.md).
 on Lithuanian read speech they score **88 % and 66 % word error rate** (our measurement for
 [wyoming-faster-whisper PR #122](https://github.com/OHF-Voice/wyoming-faster-whisper/pull/122)): the pipeline looks
 green, the sentences look like sentences, and the house does the wrong thing. The alternative is a cloud service that
-hears everything said in your home. LT_ausys is **10.6 %** on the same test, local, and faster than both.
+hears everything said in your home. LT_ausys is **8.3 %** on the same test, local, and faster than both.
 
 **What a Lithuanian voice chain needs, in the order to set it up:**
 
@@ -88,7 +90,7 @@ print(model.recognize("komanda.wav"))      # 16 kHz mono 16-bit WAV, or a float3
 
 ### B. Wyoming server (any Linux; tested in a Proxmox LXC container)
 
-A container or VM with **4 cores and 4 GB RAM** is enough (int8 peaks at ~1.6 GB on commands, ~2.3 GB on long clips).
+A container or VM with **4 cores and 4 GB RAM** is enough (int8 peaks at ~1.4 GB on commands, ~1.7 GB on long clips).
 
 ```bash
 # 1. environment
@@ -98,7 +100,7 @@ sudo mkdir -p /opt/lt_ausys && sudo git clone https://github.com/RobertasTa/lt-a
 cd /opt/lt_ausys
 sudo python3 -m venv venv && sudo venv/bin/pip install "onnx-asr[cpu,hub]" numpy wyoming
 
-# 2. model (int8 files only — 0.9 GB)
+# 2. model (int8 files only — 0.7 GB)
 sudo venv/bin/python3 -c "from huggingface_hub import snapshot_download as s; s('RobertasTa/lt-ausys', local_dir='model_v0', allow_patterns=['*.json','vocab.txt','*.int8.onnx'])"
 sudo ln -sfn model_v0 model
 
@@ -179,30 +181,41 @@ python tools/quantize_int8_matmul.py --model-dir model_fp32
 python tools/bench.py --engine onnx-asr --model model_fp32 --quant int8 --list test.tsv --out results/
 ```
 
+**Language-prompt models** (NeMo unified ASR, e.g. Upelis — what LT_ausys is now): use
+`tools/export_nemo_prompt_to_onnx.py --nemo model.nemo --lang lt --out model_fp32 --check a.wav b.wav` instead of the
+first step. A plain `model.export()` drops the language prompt, because it is applied after the encoder; the script builds
+one language into the encoder and checks it against the original before exporting.
+
 Two things the scripts know that cost us a day: NeMo writes a >2 GB encoder as hundreds of per-tensor files (the
 export script repacks them into one `.onnx.data`), and **quantizing the convolutions hurts** — only `MatMul` is
 quantized, which keeps accuracy identical to fp32 and is also the fastest variant ([why](docs/results.md#conversion-checks)).
 
 ## What is planned
 
-* **v1** — the same model fine-tuned further on home voice commands (one speaker, a conference speakerphone, radio
-  in the background), measured on the same bench before it replaces v0.
 * Using LT_ausys for the wake-word stage too, retiring the tiny Whisper model that currently listens for the name.
+
+**History.** Until 2026-11-15 LT_ausys was Kristijonas Jakubsonas's kmynas v4 (Parakeet-TDT) in ONNX — still
+available: Hugging Face revision `v1-kmynas`, this repository's tag `v1.0-kmynas`. It was replaced because Upelis was
+more accurate on the same home commands and the same CPU, with less memory ([numbers](docs/results.md)).
 
 ## Credits
 
+* **Datolabs** — [`upelis-0.6b-lt-v1`](https://huggingface.co/datolabs/upelis-0.6b-lt-v1), the model itself:
+  NVIDIA Nemotron unified ASR 0.6B fine-tuned on LIEPA-3 and Common Voice, published under OpenMDW-1.1. Everything
+  this project adds is the ONNX export (with the Lithuanian language prompt built in), quantization, serving and
+  measuring; the ears are theirs.
+* **NVIDIA** — [Nemotron unified ASR 0.6B](https://huggingface.co/nvidia/nemotron-labs-unified-asr-0.6b) (OpenMDW-1.1).
+* **Vytautas Magnus University, Vilnius University and the Institute of the Lithuanian Language** — the LIEPA-3 speech
+  corpus (CC BY 4.0); **Mozilla** — Common Voice (CC0).
 * **Kristijonas Jakubsonas** — [`kmynas-parakeet-lt-v4`](https://huggingface.co/kristijonas/kmynas-parakeet-lt-v4),
-  the model itself: Parakeet-TDT 0.6B v3 fine-tuned on the LIEPA-3 corpus, published under CC BY 4.0 with an honest
-  card. Everything this project adds is packaging, serving and measuring; the ears are his.
-* **NVIDIA** — [Parakeet-TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) (CC BY 4.0).
-* **Vilnius University / raštija.lt** — the LIEPA-3 speech corpus (CC BY 4.0).
+  which was LT_ausys until 2026-11-15 (CC BY 4.0).
 * **Ilya Stupakov** — [onnx-asr](https://github.com/istupakov/onnx-asr); **Microsoft** — onnxruntime;
   **Open Home Foundation** — the [Wyoming protocol](https://github.com/OHF-Voice/wyoming).
 
 ## License
 
-Code in this repository: **GPL-3.0** ([LICENSE](LICENSE)). The model files on Hugging Face: **CC BY 4.0**, the same as
-the original — if you redistribute or change them, credit Kristijonas Jakubsonas and say what you changed.
+Code in this repository: **GPL-3.0** ([LICENSE](LICENSE)). The model files on Hugging Face: **OpenMDW-1.1**, the same
+as the original — if you redistribute them, keep the `LICENSE` and `NOTICE` files that come with them.
 
 ---
 

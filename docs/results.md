@@ -1,5 +1,9 @@
 # Measurements — LT_ausys v0 against Paprika and faster-whisper tiny
 
+> Since 2026-11-15 LT_ausys is Datolabs' Upelis — its numbers are in
+> [2026-11-15: Upelis becomes LT_ausys](#2026-11-15-upelis-becomes-lt_ausys). The tables up to there describe v0
+> (kmynas), which is still available as Hugging Face revision `v1-kmynas`.
+
 All numbers on **one machine**: AMD Ryzen 7 8845HS (a mini PC), inside an unprivileged Proxmox LXC container with
 4 cores, 4 threads per engine, greedy decoding (beam 1), no VAD, Lithuanian forced. Measured 2026-10-24 with
 [`tools/bench.py`](../tools/bench.py). Every engine got exactly the same float32 samples; the file was never passed
@@ -94,11 +98,41 @@ for *nuostatų*, *sąlygės* for *sąlygas*. Only 12 % of its wrong words differ
 Unlike the other models, it writes some numbers as digits (208 of 986 FLEURS outputs), which can only help it against
 the references that use digits.
 
+## 2026-11-15: Upelis becomes LT_ausys
+
+Since 2026-11-15 the files at `RobertasTa/lt-ausys` are Datolabs' `upelis-0.6b-lt-v1` (Nemotron unified ASR 0.6B,
+RNN-T) exported to ONNX with the Lithuanian language prompt built into the encoder, int8 with the same MatMul-only
+recipe. The kmynas version above stays available as Hugging Face revision `v1-kmynas`. Same three test sets, same
+normalisation, same command dictionary.
+
+| model | FLEURS: WER · CER | commands: WER · CER | exam: correct · wrong · not understood | non-speech: clips with text · characters invented |
+|---|---|---|---|---|
+| **LT_ausys (Upelis) int8** | **8.32 %** · 4.26 % | 14.4 % · 9.9 % | **103** · 4 · 12 | 32.8 % · 5 357 |
+| LT_ausys (Upelis) fp32 ONNX | 8.27 % · 4.26 % | 14.0 % · 9.8 % | 103 · 4 · 12 | 29.8 % · — |
+| Upelis NeMo checkpoint | 8.05 % · 4.13 % (GPU) | 14.0 % (CPU) | 103 · 4 · 12 | 29.8 % (GPU) |
+| LT_ausys until 2026-11-15 (kmynas) int8 | 10.58 % · 6.15 % | 17.4 % | 101 · 3 · 15 | 40 % · 5 608 |
+
+Speed and memory, Wyoming server in an LXC on the same Ryzen 7 8845HS, 4 threads, 127 commands: **0.183 s median**
+(p90 0.21 s), peak RAM 1.38 GB; the kmynas server on the same container measured 0.197 s. On the desktop (Ryzen 9
+9950X): 0.044 s per command, FLEURS 0.142 s median per sentence, peak RAM 0.9 GB (commands) / 1.4 GB (FLEURS) /
+1.7 GB (non-speech clips).
+
+* **fp32 ONNX = the NeMo checkpoint** on commands: 127/127 transcripts identical (NeMo 3.1, CPU). On FLEURS the NeMo
+  figure was measured on a GPU; the 0.2-point gap is GPU against CPU arithmetic, not the export.
+* **The language prompt matters.** Exported plainly, the prompt is lost (NeMo adds it after the encoder, inside
+  `model.forward`); [`tools/export_nemo_prompt_to_onnx.py`](../tools/export_nemo_prompt_to_onnx.py) builds it into the
+  encoder and checks the encoder output against NeMo's before exporting (max difference 0.00 on our files).
+* **Part of the FLEURS gain is digits.** Upelis writes numbers from 10 up as digits, which is how 18 % of the FLEURS
+  references are written. On the 770 FLEURS sentences without numbers (NeMo, GPU) Upelis has 5.3 % WER, kmynas 5.9 %
+  — still better, by less.
+* **int8 costs almost nothing:** 0.05 points on FLEURS, 0.4 on commands, the same exam score.
+
 ## Caveats
 
 * The command set is **one speaker**. It shows the behaviour on short home commands, not generalisation across voices.
-* **18 % of FLEURS references write numbers as digits** the speaker never said. Every model here writes numbers as
-  words, so all of them are penalised equally; absolute figures are pessimistic for all.
+* **18 % of FLEURS references write numbers as digits** the speaker never said. Every model in the 2026-10-24 table
+  writes numbers as words, so all of them are penalised equally; absolute figures are pessimistic for all. Upelis
+  (2026-11-15) writes larger numbers as digits — see its section.
 * Whisper with VAD (`vad_filter`) invents far less on non-speech; `wyoming-faster-whisper` runs without it by default,
   which is what we measured.
 * Not measured: GPU, batching, audio longer than 20 s, other speakers.

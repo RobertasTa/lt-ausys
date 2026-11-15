@@ -60,8 +60,11 @@ class OnnxAsrEngine:
 
         so = rt.SessionOptions()
         so.intra_op_num_threads = threads
-        name = model if "/" in model and not Path(model).exists() else "nemo-conformer-tdt"
-        path = None if name == model else model
+        if "/" in model and not Path(model).exists():
+            name, path = model, None                                   # Hub id: onnx-asr reads config.json itself
+        else:
+            cfg = json.loads((Path(model) / "config.json").read_text(encoding="utf-8"))
+            name, path = cfg.get("model_type", "nemo-conformer-tdt"), model
         self.m = onnx_asr.load_model(name, path, quantization=None if quant == "fp32" else quant, sess_options=so)
 
     def transcribe(self, audio):
